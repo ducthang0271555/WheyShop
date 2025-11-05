@@ -1,8 +1,8 @@
 from datetime import timedelta
-
+import json
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.models import User
 from app.extensions import db
 
@@ -42,8 +42,23 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
 
     access_token = create_access_token(
-        identity={'id': user.id, 'username': user.username},
+        identity=json.dumps({
+            'id': user.id,
+            'username': user.username,
+            'role': user.role
+        }),
         expires_delta=timedelta(minutes=30)
     )
 
-    return jsonify({'access_token': access_token}), 200
+
+    return jsonify({'access_token': access_token, 'role': user.role}), 200
+
+@user_bp.route('/dashboard', methods=['GET'])
+@jwt_required()
+def dashboard():
+    identity_str = get_jwt_identity()
+    current_user = json.loads(identity_str)  # convert lại dict
+    return jsonify({
+        'message': 'Success Authorization',
+        'user': current_user
+    }), 200

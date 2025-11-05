@@ -1,0 +1,20 @@
+.top-banner{
+    background-color: orangered;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    padding: 12px 0;
+    font-weight: bold;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+}
+
+@media (max-width: 768px) {
+    .top-banner {
+        font-size: 10px;      /* nhỏ chữ lại */
+        text-align: left;
+        padding: 10px 30px;    /* giảm khoảng cách */
+        line-height: 1.4;     /* căn dòng gọn hơn */
+
+    }
+}
