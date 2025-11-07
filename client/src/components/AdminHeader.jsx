@@ -1,4 +1,4 @@
-import '../styles/admin/adminheader.css';
+import '../styles/admin/AdminHeader.css';
 import {LogOut, Menu} from "lucide-react";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
@@ -29,8 +29,8 @@ function AdminHeader() {
                         <hr/>
                         <ul>
                             <li><a href="/admin/manage-user">Quản lý tài khoản</a></li>
-                            <li><a href="/admin/ProductPage">Quản lý sản phẩm</a></li>
-                            <li><a href="/admin/StatsPage">Thống kê</a></li>
+                            <li><a href="/admin/manage-category">Quản lý loại sản phẩm</a></li>
+                            <li><a href="/admin/manage-brand">Quản lý thương hiệu</a></li>
                         </ul>
                     </div>
                 </div>

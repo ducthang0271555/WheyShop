@@ -60,6 +60,9 @@ def delete_category(category_id):
     if not category:
         return jsonify({'error': 'Category not found'}), 404
 
+    if category.products and len(category.products) > 0:
+        return jsonify({'error': 'Cannot delete category with associated products'}), 400
+
     db.session.delete(category)
     db.session.commit()
 

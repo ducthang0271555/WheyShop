@@ -3,6 +3,8 @@ import HomePage from "../pages/home/HomePage";
 import Dashboard from "../pages/admin/Dashboard";
 import PrivateRoute from "./PrivateRoute";
 import ManageUser from "../pages/admin/ManageUser";
+import ManageCategory from "../pages/admin/ManageCategory";
+import ManagerBrand from "../pages/admin/ManageBrand";
 import AdminLayout from "../layouts/AdminLayout";
 
 const routes = [
@@ -30,6 +32,14 @@ const routes = [
                 path: "manage-user",
                 element: <ManageUser/>,
             },
+            {
+                path: "manage-category",
+                element: <ManageCategory/>,
+            },
+            {
+                path: "manage-brand",
+                element: <ManagerBrand/>
+            }
         ],
     },
 ];

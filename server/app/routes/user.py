@@ -13,6 +13,7 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    email = data.get('email')
 
     if not username or not password:
         return jsonify({'error': 'Username and password are required'}), 400
@@ -20,9 +21,12 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'Username already exists'}), 400
 
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 400
+
     password_hash = generate_password_hash(password)
 
-    new_user = User(username=username, password_hash=password_hash)
+    new_user = User(username=username, password_hash=password_hash, email=email)
     db.session.add(new_user)
     db.session.commit()
 
@@ -62,3 +66,9 @@ def dashboard():
         'message': 'Success Authorization',
         'user': current_user
     }), 200
+
+@user_bp.route('/get-all-users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    users_data = [{'id': user.id, 'username': user.username, 'email': user.email,'role': user.role, 'total spent': user.total_spent} for user in users]
+    return jsonify(users_data), 200

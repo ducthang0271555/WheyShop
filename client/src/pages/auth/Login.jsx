@@ -1,5 +1,5 @@
 import {useState} from "react";
-import "../../styles/account/login.css";
+import "../../styles/account/Login.css";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import Header from "../../components/Header";
 import axios from 'axios';
