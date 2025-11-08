@@ -2,7 +2,6 @@ import '../../styles/admin/ManageCategory.css';
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import ConfirmModal from "../../components/modals/ConfirmModal";
-import {toast} from "react-toastify";
 import axios from "axios";
 
 function ManageCategory() {
@@ -36,11 +35,9 @@ function ManageCategory() {
             setCategories((prev) =>
                 prev.map((c) => (c.id === id ? {...c, name: editName} : c))
             );
-
-            toast.success('🗑️ Đã lưu chỉnh sửa thành công!');
             handleCancelEdit();
         } catch (error) {
-            toast.error("Không thể lưu!");
+            alert("Không thể lưu!");
         }
     };
 
@@ -55,13 +52,12 @@ function ManageCategory() {
             const response = await axios.delete(`${apiUrl}/categories/delete-category/${deleteId}`);
             if (response.status === 200) {
                 setCategories((prev) => prev.filter((item) => item.id !== deleteId));
-                toast.success("🗑️ Đã xóa thành công!");
             }
         } catch (error) {
             if (error.response?.status === 400) {
-                toast.error("❌ Không thể xóa! Loại sản phẩm có sản phẩm liên quan.");
+                alert("❌ Không thể xóa! Loại sản phẩm có sản phẩm liên quan.");
             } else {
-                toast.error("⚠️ Lỗi: " + (error.response?.data?.message || error.message));
+                alert("⚠️ Lỗi: " + (error.response?.data?.message || error.message));
             }
 
         } finally {
@@ -79,14 +75,19 @@ function ManageCategory() {
                 name: categoryName
             });
             if (response.status === 201) {
-                toast.success('Thêm loại sản phẩm thành công!');
+                alert('Thêm loại sản phẩm thành công!');
                 setCategoryName('');
                 fetchCategories();
             } else {
-                toast.error('❌ Lỗi khi thêm loại sản phẩm');
+                alert('❌ Lỗi khi thêm loại sản phẩm');
             }
         } catch (error) {
-            toast.error('Lỗi: ' + (error.response?.data?.message || error.message));
+            if (error.response?.status === 400) {
+                alert('Vui lòng nhập đầy đủ thông tin!');
+            }
+            else {
+                alert('Lỗi: ' + (error.response?.data?.message || error.message));
+            }
         } finally {
             setLoading(false);
         }
@@ -98,7 +99,7 @@ function ManageCategory() {
             const res = await axios.get(`${apiUrl}/categories/get-all-categories`);
             setCategories(res.data.categories);
         } catch (error) {
-            toast.error("Lỗi khi tải danh loại sản phẩm:", error);
+            alert("Lỗi khi tải danh loại sản phẩm:", error);
         } finally {
             setLoading(false);
         }
@@ -228,7 +229,7 @@ function ManageCategory() {
                 {showModal && (
                     <ConfirmModal
                         title="Xác nhận xóa"
-                        message="Bạn có chắc chắn muốn xóa loại sản phẩm này? Các sản phẩm liên quan cũng sẽ bị xóa!"
+                        message="Bạn có chắc chắn muốn xóa loại sản phẩm này?"
                         onConfirm={handleConfirmDelete}
                         onCancel={() => setShowModal(false)}
                     />

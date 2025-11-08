@@ -14,34 +14,34 @@ hr {
     display: block;
 }
 
-.manage-category-page {
+.manage-brand-page {
     padding: 20px;
 }
 
-.category-table {
+.brand-table {
     width: 50%;
     border-collapse: collapse;
     margin: 20px auto;
 }
 
-.category-table th,
-.category-table td {
+.brand-table th,
+.brand-table td {
     border: 1px solid #ddd;
     padding: 10px 15px;
     text-align: center;
 }
 
-.category-table th {
+.brand-table th {
     background-color: #007bff;
     color: white;
     font-weight: 600;
 }
 
-.category-table tr:nth-child(even) {
+.brand-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.category-table tr:hover {
+.brand-table tr:hover {
     background-color: #e6f0ff;
     transition: 0.2s;
 }
@@ -172,20 +172,20 @@ hr {
     border: 1px solid #aaa;
 }
 
-.add-category {
+.add-brand {
     display: flex;
     flex-direction: column; /* Đưa label và input xuống dòng */
     margin-bottom: 16px;
     max-width: 300px;
 }
 
-.add-category label {
+.add-brand label {
     font-weight: bold;
     margin-bottom: 8px;
     font-size: 16px;
 }
 
-.add-category input {
+.add-brand input {
     padding: 12px;
     font-size: 16px;
     width: 100%;
@@ -193,7 +193,7 @@ hr {
     border-radius: 4px;
 }
 
-.manage-category-page form {
+.manage-brand-page form {
     display: flex;
     flex-direction: column;
     align-items: center;
