@@ -115,7 +115,7 @@ function ManageBrand() {
             <h1 className="title-page">Quản lý thương hiệu</h1>
             <hr/>
 
-            {/* Radio chọn giữa Danh sách & Thêm loại */}
+            {/* Radio chọn giữa Danh sách & Thêm */}
             <div className="radio-input">
                 <label>
                     <input

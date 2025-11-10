@@ -5,6 +5,7 @@ import PrivateRoute from "./PrivateRoute";
 import ManageUser from "../pages/admin/ManageUser";
 import ManageCategory from "../pages/admin/ManageCategory";
 import ManagerBrand from "../pages/admin/ManageBrand";
+import ManageProduct from "../pages/admin/ManageProduct";
 import AdminLayout from "../layouts/AdminLayout";
 
 const routes = [
@@ -39,7 +40,11 @@ const routes = [
             {
                 path: "manage-brand",
                 element: <ManagerBrand/>
-            }
+            },
+            {
+                path: "manage-product",
+                element: <ManageProduct/>
+            },
         ],
     },
 ];

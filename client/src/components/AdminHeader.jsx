@@ -31,6 +31,7 @@ function AdminHeader() {
                             <li><a href="/admin/manage-user">Quản lý tài khoản</a></li>
                             <li><a href="/admin/manage-category">Quản lý loại sản phẩm</a></li>
                             <li><a href="/admin/manage-brand">Quản lý thương hiệu</a></li>
+                            <li><a href="/admin/manage-product">Quản lý sản phẩm</a></li>
                         </ul>
                     </div>
                 </div>

@@ -16,10 +16,11 @@ class Product(db.Model):
     stock = db.Column(db.Integer, default=0)
     weight = db.Column(db.String(50), nullable=True)
     origin = db.Column(db.String(100), nullable=True)
+    img_url = db.Column(db.String(255), nullable=True)
 
     rating = db.Column(db.Float, default=0.0)
-    is_active = db.Column(db.Boolean, default=True)
-    is_best_seller = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Integer, default=1)
+    is_best_seller = db.Column(db.Integer, default=0)
     sold_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

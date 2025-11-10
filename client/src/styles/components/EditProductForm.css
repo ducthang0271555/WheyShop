@@ -1,0 +1,37 @@
+.edit-product-modal {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    margin-top: 20px;
+}
+
+.edit-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px;
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn, .delete-btn, .cancel-btn, .save-btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.save-btn {
+    background: #0a7cff;
+    color: white;
+}
+.delete-btn {
+    background: #ff3232;
+    color: white;
+}
+.cancel-btn {
+    background: #999;
+    color: white;
+}
