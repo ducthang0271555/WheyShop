@@ -11,7 +11,12 @@ const ManageUser = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${apiUrl}/users/get-all-users`);
+                const token = localStorage.getItem('access_token');
+                const res = await axios.get(`${apiUrl}/users/get-all-users`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
                 setUsers(res.data);
             } catch (error) {
                 console.error("Lỗi khi tải danh sách người dùng:", error);

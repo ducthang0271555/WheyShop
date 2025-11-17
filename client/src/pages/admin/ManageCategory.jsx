@@ -15,6 +15,8 @@ function ManageCategory() {
     const [deleteId, setDeleteId] = useState(null);
     const [categoryName, setCategoryName] = useState('');
 
+    const token = localStorage.getItem('access_token');
+
     const handleEdit = (category) => {
         setEditId(category.id);
         setEditName(category.name);
@@ -27,8 +29,10 @@ function ManageCategory() {
 
     const handleSaveEdit = async (id) => {
         try {
-            await axios.put(`${apiUrl}/categories/update-category/${id}`, {
-                name: editName
+            await axios.put(`${apiUrl}/categories/update-category/${id}`, {name: editName}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
 
             // cập nhật lại danh sách sau khi sửa
@@ -49,7 +53,11 @@ function ManageCategory() {
     const handleConfirmDelete = async () => {
         setLoading(true);
         try {
-            const response = await axios.delete(`${apiUrl}/categories/delete-category/${deleteId}`);
+            const response = await axios.delete(`${apiUrl}/categories/delete-category/${deleteId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (response.status === 200) {
                 setCategories((prev) => prev.filter((item) => item.id !== deleteId));
             }
@@ -71,8 +79,10 @@ function ManageCategory() {
         setLoading(true);
         e.preventDefault();
         try {
-            const response = await axios.post(`${apiUrl}/categories/create-category`, {
-                name: categoryName
+            const response = await axios.post(`${apiUrl}/categories/create-category`, {name: categoryName}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
             if (response.status === 201) {
                 alert('Thêm loại sản phẩm thành công!');

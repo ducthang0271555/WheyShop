@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.models import Category
 from app.extensions import db
+from app.routes.decorator import admin_required
 
 category_bp = Blueprint('categories', __name__)
 
 @category_bp.route('/create-category', methods=['POST'])
+@admin_required
 def create_category():
     data = request.get_json()
     name = data.get('name')
@@ -36,6 +38,7 @@ def get_category(category_id):
     return jsonify({'id': category_id, 'name': category.name}), 200
 
 @category_bp.route('/update-category/<int:category_id>', methods=['PUT'])
+@admin_required
 def update_category(category_id):
     category = Category.query.get(category_id)
 
@@ -54,6 +57,7 @@ def update_category(category_id):
     return jsonify({'message': 'Category updated successfully'}), 200
 
 @category_bp.route('/delete-category/<int:category_id>', methods=['DELETE'])
+@admin_required
 def delete_category(category_id):
     category = Category.query.get(category_id)
 

@@ -15,6 +15,8 @@ function ManageBrand() {
     const [deleteId, setDeleteId] = useState(null);
     const [brandName, setBrandName] = useState('');
 
+    const token = localStorage.getItem('access_token');
+
     const handleEdit = (brand) => {
         setEditId(brand.id);
         setEditName(brand.name);
@@ -27,8 +29,10 @@ function ManageBrand() {
 
     const handleSaveEdit = async (id) => {
         try {
-            await axios.put(`${apiUrl}/brands/update-brand/${id}`, {
-                name: editName
+            await axios.put(`${apiUrl}/brands/update-brand/${id}`, {name: editName}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
 
             // cập nhật lại danh sách sau khi sửa
@@ -49,7 +53,11 @@ function ManageBrand() {
     const handleConfirmDelete = async () => {
         setLoading(true);
         try {
-            const response = await axios.delete(`${apiUrl}/brands/delete-brand/${deleteId}`);
+            const response = await axios.delete(`${apiUrl}/brands/delete-brand/${deleteId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (response.status === 200) {
                 setBrands((prev) => prev.filter((item) => item.id !== deleteId));
             }
@@ -71,8 +79,10 @@ function ManageBrand() {
         setLoading(true);
         e.preventDefault();
         try {
-            const response = await axios.post(`${apiUrl}/brands/create-brand`, {
-                name: brandName
+            const response = await axios.post(`${apiUrl}/brands/create-brand`, {name: brandName}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
             if (response.status === 201) {
                 alert('Thêm thương hiệu mới thành công!');
