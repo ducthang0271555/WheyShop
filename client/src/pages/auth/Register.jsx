@@ -56,7 +56,7 @@ function Register() {
     const handleCloseModal = () => {
             setShowModal(false);
             navigate("/auth/login");
-        };
+    };
 
     return (
         <>

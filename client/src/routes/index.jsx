@@ -1,5 +1,6 @@
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register"
+import ChangePassword from "../pages/auth/ChangePassword";
 import HomePage from "../pages/home/HomePage";
 import Dashboard from "../pages/admin/Dashboard";
 import PrivateRoute from "./PrivateRoute";
@@ -25,6 +26,10 @@ const routes = [
                 path: "register",
                 element: <Register/>,
             },
+            {
+                path: "change-password",
+                element: <ChangePassword/>,
+            }
         ],
     },
     {

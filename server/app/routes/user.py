@@ -98,17 +98,17 @@ def change_password():
     try:
         data = change_password_schema.load(request.get_json())
     except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
+        return jsonify({'error': err.messages}), 400
 
     user = User.query.get(current_user['id'])
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
     if not check_password_hash(user.password_hash, data['old_password']):
-        return jsonify({'error': 'Old password is incorrect'}), 400
+        return jsonify({'error': 'Mật khẩu hiện tại không chính xác!'}), 400
 
     if check_password_hash(user.password_hash, data['new_password']):
-        return jsonify({"error": "New password cannot be the same as old password"}), 400
+        return jsonify({"error": "Mật khẩu mới phải khác mật khẩu hiện tại!"}), 400
 
     user.password_hash = generate_password_hash(data['new_password'])
     db.session.commit()
