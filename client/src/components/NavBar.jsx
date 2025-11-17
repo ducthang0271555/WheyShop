@@ -1,9 +1,39 @@
 import '../styles/components/navbar.css';
 import {Search, ShoppingCart, User, Phone, Menu} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import {useState, useEffect, useRef} from "react";
+import ConfirmModal from "./modals/ConfirmModal";
+
 
 export default function NavBar() {
     const navigate = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [openMenu, setOpenMenu] = useState(false);
+    const menuRef = useRef(null);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        setLoggedIn(!!token);
+    }, []);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setOpenMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    const handleConfirmLogout = () => {
+        localStorage.removeItem("access_token");
+        setLoggedIn(false);
+        setShowLogoutModal(false);
+        navigate("/");
+    }
+
 
     return (
         <div className="navbar">
@@ -44,13 +74,46 @@ export default function NavBar() {
                     <span>Giỏ hàng</span>
                 </button>
 
-                <button className="login" onClick={() => navigate('/auth/login')}>
-                    <User size={22}/>
-                    <span>Đăng nhập</span>
-                </button>
+                <div className="user-menu-wrapper" ref={menuRef}>
+                    {!loggedIn ? (
+                        <button className="login" onClick={() => navigate('/auth/login')}>
+                            <User size={22}/>
+                            <span>Đăng nhập</span>
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                className="login"
+                                onClick={() => setOpenMenu(!openMenu)}
+                            >
+                                <User size={22}/>
+                            </button>
 
-
+                            {openMenu && (
+                                <div className="dropdown-menu">
+                                    <div className="menu-item" onClick={() => navigate('/auth/change-password')}>
+                                        Đổi mật khẩu
+                                    </div>
+                                    <div
+                                        className="menu-item logout"
+                                        onClick={() => setShowLogoutModal(true)}
+                                    >
+                                        Đăng xuất
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
+            {showLogoutModal && (
+                <ConfirmModal
+                    title="Xác nhận đăng xuất"
+                    message="Bạn có chắc chắn muốn đăng xuất chứ?"
+                    onConfirm={handleConfirmLogout}
+                    onCancel={() => setShowLogoutModal(false)}
+                />
+            )}
         </div>
     );
 }
