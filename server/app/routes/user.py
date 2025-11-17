@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.models import User
-from app.routes.schemas.user_schema import RegisterSchema, LoginSchema
+from app.routes.schemas.user_schema import RegisterSchema, LoginSchema, ChangePasswordSchema
 from marshmallow import ValidationError
 from app.extensions import limiter
 from app.extensions import db
@@ -12,6 +12,7 @@ from app.routes.decorator import admin_required
 
 register_schema = RegisterSchema()
 login_schema = LoginSchema()
+change_password_schema = ChangePasswordSchema()
 
 user_bp = Blueprint('users', __name__)
 
@@ -87,3 +88,29 @@ def get_all_users():
         } for user in users
     ]
     return jsonify(users_data), 200
+
+@user_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    identity_str = get_jwt_identity()
+    current_user = json.loads(identity_str)
+
+    try:
+        data = change_password_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
+
+    user = User.query.get(current_user['id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if not check_password_hash(user.password_hash, data['old_password']):
+        return jsonify({'error': 'Old password is incorrect'}), 400
+
+    if check_password_hash(user.password_hash, data['new_password']):
+        return jsonify({"error": "New password cannot be the same as old password"}), 400
+
+    user.password_hash = generate_password_hash(data['new_password'])
+    db.session.commit()
+
+    return jsonify({'message': 'Password changed successfully'}), 200

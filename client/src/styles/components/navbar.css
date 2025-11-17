@@ -109,8 +109,45 @@
 .cart:hover,
 .login :hover {
     color: #e04800;
-
 }
+
+.user-menu-wrapper {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 8px 0;
+    width: 160px;
+    z-index: 999;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.menu-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.menu-item:hover {
+    background: #f1f1f1;
+}
+
+.logout {
+    color: red;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 
 
 @media (max-width: 768px) {
@@ -169,3 +206,5 @@
         justify-content: center;
     }
 }
+
+
