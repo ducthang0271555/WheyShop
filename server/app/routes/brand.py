@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.models import Brand
 from app.extensions import db
+from app.routes.decorator import admin_required
 
 brand_bp = Blueprint('brands', __name__)
 
 @brand_bp.route('/create-brand', methods=['POST'])
+@admin_required
 def create_brand():
     data = request.get_json()
     name = data.get('name')
@@ -37,6 +39,7 @@ def get_brand(brand_id):
     return jsonify({'id': brand_id, 'name': brand.name}), 200
 
 @brand_bp.route('/update-brand/<int:brand_id>', methods=['PUT'])
+@admin_required
 def update_brand(brand_id):
     brand = Brand.query.get(brand_id)
 
@@ -55,6 +58,7 @@ def update_brand(brand_id):
     return jsonify({'message': 'Brand updated successfully'}), 200
 
 @brand_bp.route('/delete-brand/<int:brand_id>', methods=['DELETE'])
+@admin_required
 def delete_brand(brand_id):
     brand = Brand.query.get(brand_id)
 

@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app.models import Product, Category
 from app.extensions import db
+from app.routes.decorator import admin_required
 
 product_bp = Blueprint('products', __name__)
 
 @product_bp.route('/create-product', methods=['POST'])
+@admin_required
 def create_product():
     # Lấy dữ liệu từ form
     sku = request.form.get('sku')
@@ -32,7 +34,7 @@ def create_product():
         filename = secure_filename(img_file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
 
-        # ✅ Nếu file đã tồn tại → KHÔNG lưu lại nữa
+        # Nếu file đã tồn tại → KHÔNG lưu lại nữa
         if not os.path.exists(file_path):
             img_file.save(file_path)
 
@@ -74,6 +76,7 @@ def create_product():
 
 
 @product_bp.route('/get-all-products', methods=['GET'])
+@admin_required
 def get_all_products():
     categories = Category.query.all()
     result = []
@@ -112,13 +115,13 @@ def get_product(product_id):
     return jsonify({'product': product_data}), 200
 
 @product_bp.route('/update-product/<int:product_id>', methods=['PUT'])
+@admin_required
 def update_product(product_id):
     product = Product.query.get(product_id)
 
     if not product:
         return jsonify({'error': 'Product not found'}), 404
 
-    # ✅ LẤY DỮ LIỆU TỪ FORMDATA — KHÔNG PHẢI JSON
     data = request.form
     img_file = request.files.get('image')
 
@@ -164,10 +167,6 @@ def update_product(product_id):
     is_active = int(is_active) == 1
     is_best_seller = int(is_best_seller) == 1
 
-    # ==========================
-    # ✅ HANDLE IMAGE
-    # ==========================
-
     upload_folder = "static/images/product_image/"
     new_img_url = product.img_url
     old_img_url = product.img_url
@@ -179,13 +178,13 @@ def update_product(product_id):
         filename = secure_filename(img_file.filename)
         new_path = os.path.join(upload_folder, filename)
 
-        # ✅ 1. Ảnh mới chưa tồn tại → lưu
+        # Ảnh mới chưa tồn tại → lưu
         if not os.path.exists(new_path):
             img_file.save(new_path)
 
         new_img_url = f"{upload_folder}{filename}"
 
-        # ✅ 2. Nếu ảnh cũ khác ảnh mới → check xem còn ai dùng không
+        # Nếu ảnh cũ khác ảnh mới → check xem còn ai dùng không
         if old_img_url and old_img_url != new_img_url:
             used_by_other = Product.query.filter(
                 Product.img_url == old_img_url,
@@ -201,9 +200,6 @@ def update_product(product_id):
                     except:
                         pass
 
-    # ==========================
-    # ✅ SAVE DATABASE
-    # ==========================
     product.sku = sku
     product.category_id = category_id
     product.name = name
@@ -226,6 +222,7 @@ def update_product(product_id):
 
 
 @product_bp.route('/delete-product/<int:product_id>', methods=['DELETE'])
+@admin_required
 def delete_product(product_id):
     product = Product.query.get(product_id)
 

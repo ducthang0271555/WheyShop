@@ -1,12 +1,24 @@
 from flask import Flask
 from flask_cors import CORS
+from flask import jsonify
 from .config import Config
-from .extensions import db, migrate, jwt
+from .extensions import db, migrate, jwt, limiter
 
 def create_app():
     app = Flask(__name__, static_folder='../static')
     CORS(app)
     app.config.from_object(Config)
+    limiter.init_app(app)
+
+    @limiter.request_filter
+    def ip_whitelist():
+        return False
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return jsonify({
+            "error": "Bạn đã thử quá nhiều lần. Vui lòng thử lại sau 5 phút."
+        }), 429
 
     # Khởi tạo extensions trước
     db.init_app(app)

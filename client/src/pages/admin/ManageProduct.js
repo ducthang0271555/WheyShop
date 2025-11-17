@@ -32,12 +32,18 @@ function ManageProduct() {
     const [description, setDescription] = useState("");
     const [imageFile, setImageFile] = useState(null);
 
+    const token = localStorage.getItem("access_token");
+
     // ====================== FETCH DATA =========================
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${apiUrl}/products/get-all-products`);
+            const res = await axios.get(`${apiUrl}/products/get-all-products`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setCategories(res.data);
         } finally {
             setLoading(false);
@@ -84,7 +90,10 @@ function ManageProduct() {
 
         try {
             await axios.post(`${apiUrl}/products/create-product`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data"
+                },
             });
 
             alert("✅ Thêm sản phẩm thành công!");
@@ -109,7 +118,10 @@ function ManageProduct() {
         }
 
         const res = await axios.put(`${apiUrl}/products/update-product/${id}`, fd, {
-            headers: { "Content-Type": "multipart/form-data" }
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data"
+            }
         });
         alert("✅ Cập nhật sản phẩm thành công!");
         fetchData();
@@ -121,7 +133,11 @@ function ManageProduct() {
     // ====================== DELETE PRODUCT =========================
 
     const handleDeleteProduct = async (id) => {
-        await axios.delete(`${apiUrl}/products/delete-product/${id}`);
+        await axios.delete(`${apiUrl}/products/delete-product/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
         fetchData();
         setSelectedProduct(null);
     };

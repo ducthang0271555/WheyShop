@@ -4,42 +4,48 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.models import User
+from app.routes.schemas.user_schema import RegisterSchema, LoginSchema
+from marshmallow import ValidationError
+from app.extensions import limiter
 from app.extensions import db
+from app.routes.decorator import admin_required
+
+register_schema = RegisterSchema()
+login_schema = LoginSchema()
 
 user_bp = Blueprint('users', __name__)
 
 @user_bp.route('/register', methods=['POST'])
+@limiter.limit("10 per 5 minute")
 def register():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
+    try:
+        data = register_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
-    if not username or not password:
-        return jsonify({'error': 'Username and password are required'}), 400
+    password_hash = generate_password_hash(data['password'])
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Username already exists'}), 400
+    new_user = User(
+        username=data['username'],
+        password_hash=password_hash,
+        email=data['email']
+    )
 
-    if User.query.filter_by(email=email).first():
-        return jsonify({'error': 'Email already exists'}), 400
-
-    password_hash = generate_password_hash(password)
-
-    new_user = User(username=username, password_hash=password_hash, email=email)
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'User registered successfully'}), 201
+    return jsonify({"message": "User registered successfully"}), 201
 
 @user_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per 5 minutes")
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    try:
+        data = login_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
-    if not username or not password:
-        return jsonify({'error': 'Username and password are required'}), 400
+    username = data['username']
+    password = data['password']
 
     user = User.query.filter_by(username=username).first()
     if not user or not check_password_hash(user.password_hash, password):
@@ -68,7 +74,16 @@ def dashboard():
     }), 200
 
 @user_bp.route('/get-all-users', methods=['GET'])
+@admin_required
 def get_all_users():
     users = User.query.all()
-    users_data = [{'id': user.id, 'username': user.username, 'email': user.email,'role': user.role, 'total spent': user.total_spent} for user in users]
+    users_data = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role,
+            'total spent': user.total_spent
+        } for user in users
+    ]
     return jsonify(users_data), 200

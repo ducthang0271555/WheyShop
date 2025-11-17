@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/admin/ManageProduct.css";
+import ConfirmModal from "./modals/ConfirmModal";
 import axios from "axios";
 
 export default function EditProductForm({
@@ -13,6 +14,8 @@ export default function EditProductForm({
 
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
 
     const [form, setForm] = useState({
         name: product.name,
@@ -35,6 +38,12 @@ export default function EditProductForm({
     const handleChange = (field, value) => {
         setForm({ ...form, [field]: value });
     };
+
+    const handleConfirmDelete = () => {
+        onDelete(product.id);
+        setShowDeleteModal(false);
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -199,7 +208,7 @@ export default function EditProductForm({
                                 <button type="button" className="edit-btn" onClick={() => setEditMode(true)}>
                                     Sửa
                                 </button>
-                                <button type="button" className="delete-btn" onClick={() => onDelete(product.id)}>
+                                <button type="button" className="delete-btn" onClick={() => setShowDeleteModal(true)}>
                                     Xóa
                                 </button>
                                 <button type="button" className="cancel-btn" onClick={onCancel}>
@@ -216,8 +225,16 @@ export default function EditProductForm({
                                 </button>
                             </>
                         )}
-                    </div>
 
+                        {showDeleteModal && (
+                            <ConfirmModal
+                                title="Xác nhận xóa"
+                                message="Bạn có chắc chắn muốn xóa sản phẩm này?"
+                                onConfirm={handleConfirmDelete}
+                                onCancel={() => setShowDeleteModal(false)}
+                            />
+                        )}
+                    </div>
                 </div>
 
             </form>
