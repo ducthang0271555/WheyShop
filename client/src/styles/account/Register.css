@@ -1,0 +1,113 @@
+/* Toàn bộ khung đăng nhập căn giữa màn hình */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    background: #f8f9fa;
+
+}
+
+.form-container {
+    position: relative;
+    min-height: 100vh; /* Chiếm toàn màn hình */
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+    align-items: center; /* Căn giữa theo chiều ngang */
+    background-color: #f8f9fa;
+
+}
+
+.form-container .title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Form chính */
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+    background-color: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Ô nhập */
+.input {
+    height: 42px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0 12px;
+    margin-bottom: 15px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.input:focus {
+    border-color: orangered;
+}
+
+/* Nút đăng nhập */
+.form-btn {
+    background-color: orangered;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    height: 42px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.form-btn:hover {
+    background-color: #e04800;
+}
+
+
+/* Nút đăng nhập Google & Apple */
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+/* Nút đăng nhập Google & Apple */
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.apple-login-button,
+.google-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: white;
+    transition: 0.3s;
+}
+
+.apple-login-button:hover,
+.google-login-button:hover {
+    background-color: #f1f1f1;
+}
+
+.apple-icon,
+.google-icon {
+    font-size: 20px;
+}

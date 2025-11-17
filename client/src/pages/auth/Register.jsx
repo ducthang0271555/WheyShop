@@ -1,19 +1,24 @@
 import {useState} from "react";
-import "../../styles/account/Login.css";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import "../../styles/account/Register.css"
 import Header from "../../components/Header";
-import axios from 'axios';
+import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import SuccessModal from "../../components/modals/SuccessModal";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
-export default function Login() {
+
+function Register() {
+    const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("");
     const [error, setError] = useState("");
+    const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
     const apiUrl = process.env.REACT_APP_API_URL;
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setError("");
 
@@ -27,52 +32,60 @@ export default function Login() {
             return;
         }
 
+        if (password !== confirmPassword) {
+            setError("Mật khẩu và xác nhận mật khẩu không khớp.");
+            return;
+        }
+
         setLoading(true);
         try {
-            // Login và nhận access_token
-            const { data: loginData } = await axios.post(`${apiUrl}/users/login`, {
+            await axios.post(`${apiUrl}/users/register`, {
                 username,
+                email,
                 password
             });
 
-            const token = loginData.access_token;
-            localStorage.setItem("access_token", token);
-
-            // Gọi dashboard ngay để xác thực token
-            const { data: dashboardData } = await axios.get(`${apiUrl}/users/dashboard`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const currentUser = dashboardData.user;
-
-            if (currentUser.role === 1) {
-                navigate("/admin/dashboard");
-            } else {
-                navigate("/");
-            }
-
+            setShowModal(true);
         } catch (err) {
-            setError("Đăng nhập thất bại! Sai tài khoản hoặc mật khẩu hoặc token không hợp lệ.");
-            localStorage.removeItem("access_token");
+            setError(err.response?.data?.message || "Đăng ký thất bại.");
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-
+    const handleCloseModal = () => {
+            setShowModal(false);
+            navigate("/auth/login");
+        };
 
     return (
         <>
             <Header/>
             <div className="form-container">
-                <p className="title">Welcome back</p>
-                <form className="form" onSubmit={handleLogin}>
+
+                {showModal && (
+                    <SuccessModal
+                        message="Bạn đã đăng ký tài khoản thành công!"
+                        onClose={handleCloseModal}
+                    />
+                )}
+
+                <p className="title">Đăng ký tài khoản</p>
+                <form className="form" onSubmit={handleRegister}>
                     <input
                         type="text"
                         className="input"
                         placeholder="Tên đăng nhập"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="email"
+                        className="input"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                     <input
@@ -83,26 +96,20 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-
-                    <p className="page-link">
-                        <span className="page-link-label">Forgot Password?</span>
-                    </p>
+                    <input
+                        type="password"
+                        className="input"
+                        placeholder="Xác nhận mật khẩu"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
 
                     {error && <p style={{color: "red", fontSize: "12px", textAlign: "center"}}>{error}</p>}
 
                     <button className="form-btn" type="submit" disabled={loading}>
-                        {loading ? <LoadingSpinner/> : "Log in"}
+                        {loading ? <LoadingSpinner/> : "Đăng ký"}
                     </button>
-
-                    <p className="sign-up-label">
-                        Don't have an account?
-                        <span
-                            className="sign-up-link"
-                            onClick={() => navigate('/auth/register')}
-                        >
-                        Sign up
-                    </span>
-                    </p>
 
                     <div className="buttons-container">
                         <div className="apple-login-button">
@@ -154,11 +161,13 @@ export default function Login() {
                             <span>Log in with Google</span>
                         </div>
                     </div>
+
                 </form>
 
                 {loading && (<LoadingSpinner/>)}
             </div>
         </>
-    );
+    )
 }
 
+export default Register;

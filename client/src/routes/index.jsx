@@ -1,4 +1,5 @@
 import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register"
 import HomePage from "../pages/home/HomePage";
 import Dashboard from "../pages/admin/Dashboard";
 import PrivateRoute from "./PrivateRoute";
@@ -14,8 +15,17 @@ const routes = [
         element: <HomePage/>,
     },
     {
-        path: "/auth/login",
-        element: <Login/>,
+        path: "/auth",
+        children: [
+            {
+                path: "login",
+                element: <Login/>,
+            },
+            {
+                path: "register",
+                element: <Register/>,
+            },
+        ],
     },
     {
         path: "/admin",
