@@ -2,13 +2,14 @@ from flask import Flask
 from flask_cors import CORS
 from flask import jsonify
 from .config import Config
-from .extensions import db, migrate, jwt, limiter
+from .extensions import db, migrate, jwt, limiter, mail
 
 def create_app():
     app = Flask(__name__, static_folder='../static')
     CORS(app)
     app.config.from_object(Config)
     limiter.init_app(app)
+
 
     @limiter.request_filter
     def ip_whitelist():
@@ -24,6 +25,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
 
     # Import models SAU KHI init_app
     from .models import user, product, category, order, cart, order_item, brand, product_flavor

@@ -1,6 +1,9 @@
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register"
 import ChangePassword from "../pages/auth/ChangePassword";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import VerifyOTP from "../pages/auth/VerifyOTP";
+import ResetPassword from "../pages/auth/ResetPassword";
 import HomePage from "../pages/home/HomePage";
 import Dashboard from "../pages/admin/Dashboard";
 import PrivateRoute from "./PrivateRoute";
@@ -29,6 +32,18 @@ const routes = [
             {
                 path: "change-password",
                 element: <ChangePassword/>,
+            },
+            {
+                path: "forgot-password",
+                element: <ForgotPassword/>,
+            },
+            {
+                path: "forgot-password/verify-otp",
+                element: <VerifyOTP/>,
+            },
+            {
+                path: "reset-password",
+                element: <ResetPassword/>,
             }
         ],
     },

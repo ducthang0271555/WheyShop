@@ -85,7 +85,9 @@ export default function Login() {
                     />
 
                     <p className="page-link">
-                        <span className="page-link-label">Forgot Password?</span>
+                        <span className="page-link-label"
+                                onClick={() => navigate('/auth/forgot-password')}
+                        >Forgot Password?</span>
                     </p>
 
                     {error && <p style={{color: "red", fontSize: "12px", textAlign: "center"}}>{error}</p>}
