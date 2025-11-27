@@ -219,3 +219,41 @@ hr {
     cursor: pointer;
     transition: 0.2s;
 }
+
+/* --- CSS CHO PHẦN CHỌN HASHTAG --- */
+
+.hashtag-selection-container {
+    display: flex;
+    flex-wrap: wrap; /* Tự động xuống dòng nếu nhiều tag */
+    gap: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 5px;
+}
+
+.hashtag-badge {
+    padding: 6px 14px;
+    background-color: #e0e0e0;
+    color: #333;
+    border-radius: 20px; /* Bo tròn hình viên thuốc */
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none; /* Không cho bôi đen text khi click nhanh */
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.hashtag-badge:hover {
+    background-color: #d0d0d0;
+}
+
+/* Khi Hashtag được chọn (Active) */
+.hashtag-badge.active {
+    background-color: #d70018; /* Màu đỏ chủ đạo của bạn */
+    color: white;
+    border-color: #d70018;
+    box-shadow: 0 2px 5px rgba(215, 0, 24, 0.3);
+}

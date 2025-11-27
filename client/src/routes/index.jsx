@@ -11,6 +11,7 @@ import ManageUser from "../pages/admin/ManageUser";
 import ManageCategory from "../pages/admin/ManageCategory";
 import ManagerBrand from "../pages/admin/ManageBrand";
 import ManageProduct from "../pages/admin/ManageProduct";
+import ManageHashtag from "../pages/admin/ManageHashtag";
 import AdminLayout from "../layouts/AdminLayout";
 
 const routes = [
@@ -75,6 +76,10 @@ const routes = [
                 path: "manage-product",
                 element: <ManageProduct/>
             },
+            {
+                path: "manage-hashtag",
+                element: <ManageHashtag/>
+            }
         ],
     },
 ];

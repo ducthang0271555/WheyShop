@@ -12,6 +12,7 @@ function ManageProduct() {
     const [categories, setCategories] = useState([]);
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
+    const [hashtagsList, setHashtagsList] = useState([]);
 
     // UI state
     const [selected, setSelected] = useState("list");
@@ -31,6 +32,9 @@ function ManageProduct() {
     const [origin, setOrigin] = useState("");
     const [description, setDescription] = useState("");
     const [imageFile, setImageFile] = useState(null);
+    const [isNew, setIsNew] = useState(0);
+
+    const [selectedHashtags, setSelectedHashtags] = useState([]);
 
     const token = localStorage.getItem("access_token");
 
@@ -59,13 +63,29 @@ function ManageProduct() {
         const fetchLists = async () => {
             const resCat = await axios.get(`${apiUrl}/categories/get-all-categories`);
             const resBrand = await axios.get(`${apiUrl}/brands/get-all-brands`);
+            const resHash = await axios.get(`${apiUrl}/hash_tags/get-all-hash-tags`);
 
             setCategoriesList(resCat.data.categories);
             setBrandsList(resBrand.data.brands);
+            setHashtagsList(resHash.data.hash_tags || []);
         };
         fetchLists();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // ====================== LOGIC CHỌN HASHTAG =========================
+
+        const toggleHashtag = (id) => {
+            setSelectedHashtags(prev => {
+                if (prev.includes(id)) {
+                    // Nếu đã chọn thì bỏ chọn
+                    return prev.filter(itemId => itemId !== id);
+                } else {
+                    // Chưa chọn thì thêm vào
+                    return [...prev, id];
+                }
+            });
+        };
 
     // ====================== ADD PRODUCT =========================
 
@@ -83,6 +103,11 @@ function ManageProduct() {
         formData.append("weight", weight);
         formData.append("origin", origin);
         formData.append("description", description);
+        formData.append("is_new", isNew);
+
+        selectedHashtags.forEach(id => {
+            formData.append("hash_tags", id);
+        });
 
         if (imageFile) {
             formData.append("image", imageFile);
@@ -97,6 +122,14 @@ function ManageProduct() {
             });
 
             alert("✅ Thêm sản phẩm thành công!");
+
+            // Reset form sau khi thành công
+            setName(""); setSku(""); setCategoryId(""); setBrandId("");
+            setPrice(""); setDiscountPercent(0); setStock(0);
+            setWeight(""); setOrigin(""); setDescription("");
+            setImageFile(null); setSelectedHashtags([]);
+            setIsNew(0);
+
             fetchData();
         } catch (err) {
             console.log(err);
@@ -110,7 +143,13 @@ function ManageProduct() {
         const fd = new FormData();
 
         for (const key in form) {
-            fd.append(key, form[key]);
+            if (Array.isArray(form[key])) {
+                form[key].forEach((item) => {
+                    fd.append(key, item); // Append từng item riêng lẻ: hash_tags=1, hash_tags=2
+                });
+            } else {
+                fd.append(key, form[key]);
+            }
         }
 
         if (imageFile) {
@@ -298,8 +337,40 @@ function ManageProduct() {
                                     <input type="text" value={origin} onChange={(e) => setOrigin(e.target.value)} />
                                 </div>
 
+                                <div className="form-group"><label>Là sản phẩm mới?</label>
+                                    <select
+                                        value={isNew}
+                                        onChange={(e) => setIsNew(Number(e.target.value))}
+                                    >
+                                        <option value={0}>Không</option>
+                                        <option value={1}>Có</option>
+                                    </select>
+                                </div>
+
                                 <div className="form-group full-width"><label>Mô tả</label>
-                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
+                                    <textarea value={description}
+                                              onChange={(e) => setDescription(e.target.value)}></textarea>
+                                </div>
+
+                                {/* --- PHẦN CHỌN HASHTAG MỚI THÊM --- */}
+                                <div className="form-group full-width">
+                                    <label>Hashtags (Chọn nhiều)</label>
+                                    <div className="hashtag-selection-container">
+                                        {hashtagsList.length > 0 ? (
+                                            hashtagsList.map((tag) => (
+                                                <div
+                                                    key={tag.id}
+                                                    className={`hashtag-badge ${selectedHashtags.includes(tag.id) ? 'active' : ''}`}
+                                                    onClick={() => toggleHashtag(tag.id)}
+                                                >
+                                                    {tag.name}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p style={{fontSize: "14px", color: "#666"}}>Chưa có hashtag nào trong hệ
+                                                thống.</p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Ảnh + nút submit */}

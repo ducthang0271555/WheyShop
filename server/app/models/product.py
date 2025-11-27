@@ -1,9 +1,11 @@
 from datetime import datetime
+from tkinter.constants import CASCADE
+
 from ..extensions import db
 
 product_hashtags = db.Table('product_hashtags',
-    db.Column('product_id', db.Integer, db.ForeignKey('products.id'), primary_key=True),
-    db.Column('hashtag_id', db.Integer, db.ForeignKey('hash_tags.id'), primary_key=True)
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id', ondelete=CASCADE), primary_key=True),
+    db.Column('hashtag_id', db.Integer, db.ForeignKey('hash_tags.id', ondelete=CASCADE), primary_key=True)
 )
 
 class Product(db.Model):
