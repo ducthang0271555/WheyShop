@@ -7,6 +7,7 @@ from .cart import Cart
 from .brand import Brand
 from .product_flavor import ProductFlavor
 from .password_otp import PasswordOTP
+from .hash_tag import HashTag
 
 __all__ = [
     "User",
@@ -18,4 +19,5 @@ __all__ = [
     "Brand",
     "ProductFlavor",
     "PasswordOTP",
+    "HashTag",
 ]

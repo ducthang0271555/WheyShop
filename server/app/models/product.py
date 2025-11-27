@@ -1,6 +1,11 @@
 from datetime import datetime
 from ..extensions import db
 
+product_hashtags = db.Table('product_hashtags',
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id'), primary_key=True),
+    db.Column('hashtag_id', db.Integer, db.ForeignKey('hash_tags.id'), primary_key=True)
+)
+
 class Product(db.Model):
     __tablename__ = 'products'
 
@@ -20,6 +25,7 @@ class Product(db.Model):
 
     rating = db.Column(db.Float, default=0.0)
     is_active = db.Column(db.Integer, default=1)
+    is_new = db.Column(db.Integer, default=0)
     is_best_seller = db.Column(db.Integer, default=0)
     sold_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -29,6 +35,9 @@ class Product(db.Model):
     brand = db.relationship('Brand', backref='products', lazy=True)
     category = db.relationship('Category', backref='products', lazy=True)
     flavors = db.relationship('ProductFlavor', backref='product', lazy=True, cascade="all, delete-orphan")
+
+    hashtags = db.relationship('HashTag', secondary=product_hashtags,
+                               backref=db.backref('products', lazy='dynamic'))
 
     def __repr__(self):
         return f'<Product {self.name}>'
