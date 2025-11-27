@@ -1,6 +1,6 @@
 import "../../styles/account/Register.css"
 import SuccessModal from "../../components/modals/SuccessModal";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";

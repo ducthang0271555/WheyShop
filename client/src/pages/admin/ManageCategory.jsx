@@ -1,6 +1,6 @@
 import '../../styles/admin/ManageCategory.css';
 import {useEffect, useState} from "react";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import axios from "axios";
 

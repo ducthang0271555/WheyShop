@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "../../styles/admin/ManageProduct.css";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ProductCard from "../../components/product/ProductCard";
 import EditProductForm from "../../components/product/EditProductForm";
 import axios from "axios";

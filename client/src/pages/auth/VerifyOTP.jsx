@@ -1,7 +1,7 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../../contexts/OtpContext";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import styled from "styled-components";
 import axios from "axios";

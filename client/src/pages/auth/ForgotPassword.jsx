@@ -2,7 +2,7 @@ import "../../styles/account/Register.css"
 import {useContext} from "react";
 import {OtpContext} from "../../contexts/OtpContext";
 import Header from "../../components/header/Header";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";

@@ -1,6 +1,6 @@
 import '../../styles/admin/ManageUser.css';
 import {useEffect, useState} from 'react';
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import axios from 'axios';
 
 const ManageUser = () => {
