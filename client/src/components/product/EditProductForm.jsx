@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import "../styles/admin/ManageProduct.css";
-import ConfirmModal from "./modals/ConfirmModal";
+import "../../styles/admin/ManageProduct.css";
+import ConfirmModal from "../modals/ConfirmModal";
 import axios from "axios";
 
 export default function EditProductForm({

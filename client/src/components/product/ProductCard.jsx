@@ -1,6 +1,6 @@
-import "../styles/components/AdminProductCard.css";
+import "../../styles/components/product/ProductCard.css";
 
-export default function AdminProductCard({ product, onClick }) {
+export default function ProductCard({ product, onClick }) {
     const apiUrl = process.env.REACT_APP_API_URL;
     const {
         name,

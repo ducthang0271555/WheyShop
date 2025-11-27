@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import "../../styles/admin/ManageProduct.css";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
-import AdminProductCard from "../../components/AdminProductCard";
-import EditProductForm from "../../components/EditProductForm";
+import ProductCard from "../../components/product/ProductCard";
+import EditProductForm from "../../components/product/EditProductForm";
 import axios from "axios";
 
 function ManageProduct() {
@@ -231,7 +231,7 @@ function ManageProduct() {
 
                                                 <div className="category-products">
                                                     {cat.products.map((p) => (
-                                                        <AdminProductCard
+                                                        <ProductCard
                                                             key={p.id}
                                                             product={p}
                                                             onClick={() => handleSelectProduct(p.id)}

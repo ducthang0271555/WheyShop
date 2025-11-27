@@ -25,6 +25,7 @@
 }
 
 .logo-and-categories img {
+    cursor: pointer;
     height: 70px;
 }
 
@@ -42,6 +43,8 @@
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
+
 
 .logo-and-categories button:hover {
     background-color: #e04800;

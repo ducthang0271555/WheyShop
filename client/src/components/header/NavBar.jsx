@@ -1,8 +1,8 @@
-import '../styles/components/navbar.css';
+import '../../styles/components/header/navbar.css';
 import {Search, ShoppingCart, User, Phone, Menu} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
-import ConfirmModal from "./modals/ConfirmModal";
+import ConfirmModal from "../modals/ConfirmModal";
 
 
 export default function NavBar() {
@@ -43,6 +43,7 @@ export default function NavBar() {
                     <img
                         src="/logo.png"
                         alt="WheyShop"
+                        onClick={() => navigate('/')}
                     />
                     <button>
                         <Menu size={20}/>

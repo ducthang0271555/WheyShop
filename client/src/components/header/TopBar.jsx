@@ -1,4 +1,4 @@
-import '../styles/components/topbar.css';
+import '../../styles/components/header/topbar.css';
 
 export default function TopBar() {
     return (

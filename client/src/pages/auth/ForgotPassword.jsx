@@ -1,7 +1,7 @@
 import "../../styles/account/Register.css"
 import {useContext} from "react";
 import {OtpContext} from "../../contexts/OtpContext";
-import Header from "../../components/Header";
+import Header from "../../components/header/Header";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import {useState} from "react";

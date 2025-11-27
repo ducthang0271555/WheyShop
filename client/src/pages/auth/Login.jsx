@@ -1,7 +1,7 @@
 import {useState} from "react";
 import "../../styles/account/Login.css";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
-import Header from "../../components/Header";
+import Header from "../../components/header/Header";
 import axios from 'axios';
 import {useNavigate} from "react-router-dom";
 

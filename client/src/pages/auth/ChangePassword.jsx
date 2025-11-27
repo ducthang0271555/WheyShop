@@ -1,5 +1,5 @@
 import "../../styles/account/Register.css"
-import Header from "../../components/Header";
+import Header from "../../components/header/Header";
 import SuccessModal from "../../components/modals/SuccessModal";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import {useState} from "react";

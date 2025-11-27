@@ -1,6 +1,6 @@
 import {useState} from "react";
 import "../../styles/account/Register.css"
-import Header from "../../components/Header";
+import Header from "../../components/header/Header";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import {useNavigate} from "react-router-dom";
