@@ -1,0 +1,134 @@
+/* Container chung */
+.category-section-wrapper {
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng giống FlashSale/Banner trên */
+    margin: 30px auto; /* Căn giữa */
+
+}
+
+/* --- HEADER --- */
+.cat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee; /* Đường kẻ mờ dưới tiêu đề */
+}
+
+.cat-header a {
+    text-decoration: none;
+}
+
+.cat-title {
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #333;
+    margin: 0;
+}
+
+.cat-title:hover {
+    color: #0a7cff;
+}
+
+.cat-header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Danh sách nút filter nhỏ (Hydrolyzed, Isolate...) */
+
+
+.cat-tag-btn {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #555;
+}
+
+.cat-tag-btn:hover {
+    background-color: #d70018; /* Hover màu đỏ */
+    color: white;
+    border-color: #d70018;
+}
+
+.cat-view-all-top {
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    display: none; /* Ẩn trên mobile */
+}
+
+/* --- GRID SẢN PHẨM --- */
+.cat-product-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 Cột */
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+/* --- NÚT XEM TẤT CẢ (DƯỚI) --- */
+.cat-footer-action {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.btn-cat-view-all {
+    display: inline-block;
+    padding: 10px 40px;
+    background-color: white;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-cat-view-all:hover {
+    background-color: #d70018;
+    color: white;
+    border-color: #d70018;
+}
+
+/* --- BANNER DƯỚI (Dùng lại style bạn đã có, tinh chỉnh chút) --- */
+.featured-banner-container {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.featured-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.featured-banner-link:hover .featured-banner-img {
+    transform: scale(1.02);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+    .cat-product-grid {
+        grid-template-columns: repeat(3, 1fr); /* Tablet hiện 3 cột */
+    }
+}
+
+@media (max-width: 768px) {
+    .cat-product-grid {
+        grid-template-columns: repeat(2, 1fr); /* Mobile hiện 2 cột */
+    }
+    .cat-title { font-size: 18px; }
+    .cat-header { flex-direction: column; align-items: flex-start; gap: 10px;}
+}

@@ -1,0 +1,87 @@
+/* Container nền cam đỏ */
+.flash-sale-container {
+    background: linear-gradient(90deg, #f04e2e 0%, #d70018 100%);
+    border-radius: 10px;
+    margin: 30px auto; /* Căn giữa */
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+/* Phần Header */
+.flash-sale-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.fs-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+    font-style: italic;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    display: inline-block;
+}
+
+.fs-view-all {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+}
+
+.fs-view-all:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+/* Grid chứa các ProductCard */
+.flash-sale-list {
+    display: grid;
+    /* Chia 5 cột đều nhau */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+/* Tùy chỉnh wrapper của từng item để ProductCard hiển thị đẹp trên nền cam */
+.fs-item-wrapper {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 100%; /* Để các thẻ cao bằng nhau */
+    transition: transform 0.2s;
+}
+
+.fs-item-wrapper:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* --- Override (Ghi đè) CSS của ProductCard cũ nếu cần --- */
+/* Vì ProductCard của bạn có class .admin-product-card,
+   ta có thể sửa lại chút style khi nó nằm trong .flash-sale-container */
+
+.flash-sale-container .admin-product-card {
+    border: none; /* Bỏ viền cũ nếu có */
+    box-shadow: none; /* Bỏ bóng cũ để dùng bóng của wrapper */
+    padding: 10px;
+    height: 100%;
+}
+
+/* Responsive Mobile */
+@media (max-width: 768px) {
+    .flash-sale-list {
+        grid-template-columns: repeat(2, 1fr); /* Mobile hiện 2 cột */
+    }
+
+    .fs-title {
+        font-size: 20px;
+    }
+}

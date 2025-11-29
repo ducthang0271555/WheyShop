@@ -289,3 +289,41 @@ def delete_product(product_id):
     db.session.commit()
 
     return jsonify({'message': 'Product deleted successfully'}), 200
+
+@product_bp.route('/flash-sale', methods=['GET'])
+def get_flash_sale_products():
+    flash_sale_products = Product.query.filter(Product.discount_percent > 0)\
+    .order_by(Product.discount_percent.desc()).limit(5).all()
+
+    result = []
+    for p in flash_sale_products:
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'price': str(p.price),
+            'discount_percent': p.discount_percent,
+            'rating': p.rating,
+            'sold_count': p.sold_count,
+            'image': p.img_url
+        })
+
+    return jsonify(result), 200
+
+@product_bp.route('/top-product-sold-by-category/<int:category_id>', methods=['GET'])
+def get_top_sold_by_category(category_id):
+    products = Product.query.filter_by(category_id=category_id, is_active=1) \
+        .order_by(Product.sold_count.desc()) \
+        .limit(5).all()
+
+    result = []
+    for p in products:
+        result.append({
+            "id": p.id,
+            "name": p.name,
+            "image": p.img_url,
+            "price": float(p.price),
+            "discount_percent": p.discount_percent,
+            "sold_count": p.sold_count
+        })
+
+    return jsonify(result)

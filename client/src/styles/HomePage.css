@@ -1,0 +1,45 @@
+.sticky-header {
+    /* Quan trọng: Giữ header dính ở vị trí top: 0 */
+    position: sticky;
+    top: 0;
+
+    /* Đảm bảo Header luôn nằm đè lên các thành phần khác (Banner, FlashSale) */
+    z-index: 1000;
+
+    /* Quan trọng: Phải set màu nền, nếu không khi cuộn nội dung bên dưới sẽ hiện lấp ló phía sau */
+    background-color: #fff;
+
+    /* Tạo bóng đổ nhẹ để phân tách Header với nội dung khi cuộn */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+    width: 100%;
+}
+
+.featured-banner-container {
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng bằng FlashSale/Banner trên */
+    margin: 40px auto; /* Căn giữa và tạo khoảng cách trên dưới */
+    padding: 0 10px;   /* Khoảng đệm an toàn trên mobile */
+    box-sizing: border-box;
+}
+
+.featured-banner-link {
+    display: block; /* Để thẻ a bao trọn ảnh */
+    width: 100%;
+    border-radius: 10px; /* Bo góc giống Flash Sale */
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.featured-banner-img {
+    width: 100%;
+    height: auto; /* Chiều cao tự động theo tỷ lệ ảnh */
+    display: block; /* Loại bỏ khoảng trắng thừa dưới ảnh */
+    object-fit: cover;
+}
+
+/* Hiệu ứng hover nhẹ */
+.featured-banner-link:hover {
+    transform: translateY(-3px); /* Nổi lên nhẹ khi di chuột */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}

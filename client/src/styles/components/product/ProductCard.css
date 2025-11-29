@@ -1,65 +1,98 @@
+/* Container chính */
 .admin-product-card {
-    position: relative;
-    width: 230px;
+    position: relative; /* Để cái badge giảm giá bám theo khung này */
+    width: 100%;        /* Để tự co giãn theo lưới Grid của cha (FlashSale) */
     background: #fff;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: left;
-    transition: 0.2s;
+    border-radius: 8px; /* Bo góc nhẹ giống hình */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
-    margin-top: 20px;
+    overflow: hidden;   /* Để cắt các phần thừa */
+    padding: 10px;      /* Khoảng cách bên trong */
+    display: flex;
+    flex-direction: column;
+    border: 1px solid transparent; /* Viền trong suốt để chuẩn bị hover */
+    box-sizing: border-box; /* Đảm bảo padding không làm vỡ khung */
 }
 
+/* Hiệu ứng khi di chuột vào */
 .admin-product-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #d70018; /* Viền đỏ giống Shopee */
 }
 
-.product-img {
-    width: 100%;
-    height: 180px;
-    object-fit: contain;
-}
-
+/* --- BADGE GIẢM GIÁ (QUAN TRỌNG) --- */
+/* Cấu hình để nằm góc trên cùng bên trái */
 .discount-badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: red;
-    color: white;
-    padding: 4px 8px;
-    font-size: 14px;
-    border-radius: 6px;
-    font-weight: bold;
+    top: 0;
+    left: 0;
+    background-color: #d70018; /* Màu đỏ đậm */
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    
+    /* Tạo hình dáng bo góc chéo */
+    border-top-left-radius: 8px;     /* Khớp với bo góc của card */
+    border-bottom-right-radius: 10px; /* Bo tròn góc dưới */
+    
+    z-index: 10; /* Nổi lên trên ảnh */
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
+/* Ảnh sản phẩm */
+.product-img {
+    width: 100%;
+    height: 180px; /* Chiều cao cố định để các thẻ bằng nhau */
+    object-fit: contain; /* Ảnh nằm gọn, không bị méo */
+    margin-bottom: 8px;
+    margin-top: 15px; /* Đẩy xuống 1 chút để không bị dính sát badge quá */
+}
+
+/* Tên sản phẩm */
 .product-name {
-    font-size: 15px;
-    font-weight: 600;
-    margin-top: 10px;
-    height: 40px;
-}
-
-.price-box {
-    margin-top: 6px;
-}
-
-.final-price {
-    color: orangered;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.original-price {
-    text-decoration: line-through;
     font-size: 14px;
-    color: #777;
-    margin-left: 5px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0 0 8px 0;
+    height: 40px; /* Cố định chiều cao cho 2 dòng chữ */
+    
+    /* Cắt chữ nếu dài quá 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
+/* Khung giá */
+.price-box {
+    display: flex;
+    align-items: baseline; /* Căn chân chữ cho đều */
+    gap: 8px;
+    margin-top: auto; /* Đẩy giá xuống dưới cùng nếu tên ngắn */
+}
+
+/* Giá sau giảm (Màu đỏ) */
+.final-price {
+    color: #d70018;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Giá gốc (Gạch ngang) */
+.original-price {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 13px;
+}
+
+/* Số lượng đã bán */
 .sold {
     display: block;
-    margin-top: 5px;
-    color: #666;
-    font-size: 13px;
+    margin-top: 8px;
+    color: #777;
+    font-size: 12px;
 }

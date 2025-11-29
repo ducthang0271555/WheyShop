@@ -2,27 +2,27 @@
 .banner-container {
     display: flex;
     width: 100%;
-    max-width: 1200px;       /* Giới hạn chiều rộng tối đa (chuẩn web) */
-    margin: 5px auto;       /* Căn giữa màn hình */
-    height: 480px;           /* Chiều cao cố định để giao diện không bị nhảy */
-    gap: 10px;               /* Khoảng cách giữa cột trái và phải */
-    padding: 0 10px;         /* Khoảng cách an toàn 2 bên mép màn hình nhỏ */
+    max-width: 1180px;
+    margin: 5px auto;
+    height: 480px;
+    gap: 10px;
+
 }
 
 /* --- CỘT TRÁI (SLIDER + NAV) --- */
 .left-banner-container {
-    flex: 2.5;               /* Chiếm 2.5 phần (khoảng 71%) */
+    flex: 2.5;
     display: flex;
-    flex-direction: column;  /* Xếp dọc: Ảnh ở trên, Nav ở dưới */
+    flex-direction: column;
     background-color: #fff;
     border-radius: 8px;
-    overflow: hidden;        /* Bo góc */
+    overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* Phần hiển thị ảnh lớn */
 .banner-image-wrapper {
-    flex: 1;                 /* Chiếm toàn bộ khoảng trống còn lại trừ thanh Nav */
+    flex: 1;
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -39,13 +39,13 @@
 /* Thanh điều hướng bên dưới (Navigation) */
 .banner-nav {
     display: flex;
-    height: 80px;            /* Chiều cao cố định cho thanh menu dưới */
+    height: 80px;
     background-color: #fff;
     border-top: 1px solid #eee;
 }
 
 .nav-item {
-    flex: 1;                 /* Các ô chia đều chiều rộng */
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -53,7 +53,7 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    border-bottom: 3px solid transparent; /* Viền dưới trong suốt mặc định */
+    border-bottom: 3px solid transparent;
     padding: 0 5px;
 }
 
@@ -65,7 +65,7 @@
 /* Trạng thái ACTIVE (Đang được chọn) */
 .nav-item.active {
     background-color: #fff;
-    border-bottom: 3px solid #d70018; /* Màu đỏ nổi bật */
+    border-bottom: 3px solid #d70018;
 }
 
 .nav-title {
@@ -91,15 +91,15 @@
 
 /* --- CỘT PHẢI (3 ẢNH NHỎ) --- */
 .right-banner-container {
-    flex: 1;                 /* Chiếm 1 phần (khoảng 29%) */
+    flex: 1;
     display: flex;
-    flex-direction: column;  /* Xếp chồng 3 ảnh lên nhau */
-    gap: 10px;               /* Khoảng cách giữa các ảnh nhỏ */
-    height: 100%;            /* Chiều cao full theo cha */
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
 }
 
 .right-banner-item {
-    flex: 1;                 /* Mỗi item tự chia đều 1/3 chiều cao */
+    flex: 1;
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -122,7 +122,7 @@
 /* --- RESPONSIVE (Dành cho màn hình nhỏ/điện thoại) --- */
 @media (max-width: 768px) {
     .banner-container {
-        flex-direction: column; /* Chuyển thành xếp dọc trên mobile */
+        flex-direction: column;
         height: auto;
     }
 
@@ -132,7 +132,7 @@
     }
 
     .banner-image-wrapper {
-        height: 200px; /* Chiều cao ảnh banner trên mobile */
+        height: 200px;
     }
 
     .nav-title {

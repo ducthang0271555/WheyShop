@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import "../../styles/components/home/Banner.css"
+import "../../styles/components/body/Banner.css"
 
 
 const bannerData = [
