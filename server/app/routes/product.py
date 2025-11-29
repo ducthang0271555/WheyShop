@@ -267,7 +267,25 @@ def delete_product(product_id):
     if not product:
         return jsonify({'error': 'Product not found'}), 404
 
+    img_url = product.img_url
+
     db.session.delete(product)
+
+    if img_url:
+        used_by_other = Product.query.filter(
+            Product.img_url == img_url
+        ).first()
+
+        # Không ai dùng → xóa file
+        if not used_by_other:
+            import os
+            file_path = img_url
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+
     db.session.commit()
 
     return jsonify({'message': 'Product deleted successfully'}), 200

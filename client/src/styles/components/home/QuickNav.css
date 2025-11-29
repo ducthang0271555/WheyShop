@@ -1,0 +1,106 @@
+.quick-nav-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 10px;
+}
+
+.quick-nav-grid {
+    display: grid;
+    /* Tự động chia cột, mỗi cột tối thiểu 100px */
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 15px;
+}
+
+.quick-nav-item {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    min-height: 110px; /* Đảm bảo chiều cao đồng đều */
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(-10deg); } /* Nghiêng trái */
+    40% { transform: rotate(10deg); }  /* Nghiêng phải */
+    60% { transform: rotate(-5deg); }  /* Nghiêng trái nhẹ hơn */
+    80% { transform: rotate(5deg); }   /* Nghiêng phải nhẹ hơn */
+    100% { transform: rotate(0deg); }  /* Về vị trí cũ */
+}
+
+/* Hiệu ứng hover */
+.quick-nav-item:hover .quick-nav-icon-box {
+    /* Chạy animation wiggle trong 0.6s */
+    animation: wiggle 0.6s ease-in-out;
+}
+
+.quick-nav-item:hover .quick-nav-icon-box img {
+    /* Phóng to lên 1.2 lần (120%) */
+    transform: scale(1.2);
+}
+
+.quick-nav-icon-box {
+    width: 75px;
+        height: 75px;
+        margin-bottom: 12px;
+
+        /* Để animation mượt hơn */
+        transform-origin: center center;
+}
+
+.quick-nav-icon-box img {
+    width: 100%;
+       height: 100%;
+       object-fit: contain;
+
+       /* Hiệu ứng phóng to "từ từ" trong 0.5 giây */
+       transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.quick-nav-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.3;
+    padding: 0 5px;
+
+    /* Cắt bớt nếu tên quá dài (2 dòng) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive cho Mobile: Chuyển sang trượt ngang */
+@media (max-width: 768px) {
+    .quick-nav-grid {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        gap: 10px;
+        scroll-snap-type: x mandatory;
+    }
+
+    .quick-nav-grid::-webkit-scrollbar {
+        height: 0px; /* Ẩn thanh cuộn cho đẹp */
+    }
+
+    .quick-nav-item {
+        min-width: 90px;
+        width: 90px;
+        scroll-snap-align: start;
+    }
+
+    .quick-nav-text {
+        font-size: 11px;
+    }
+}
