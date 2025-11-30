@@ -34,7 +34,6 @@ function ManageBrand() {
                     Authorization: `Bearer ${token}`
                 }
             });
-
             // cập nhật lại danh sách sau khi sửa
             setBrands((prev) =>
                 prev.map((c) => (c.id === id ? {...c, name: editName} : c))

@@ -1,8 +1,9 @@
 import '../../styles/components/header/navbar.css';
-import {Search, ShoppingCart, User, Phone, Menu} from "lucide-react";
+import {ShoppingCart, User, Phone, Menu} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import ConfirmModal from "../modals/ConfirmModal";
+import SearchBar from "./SearchBar";
 
 
 export default function NavBar() {
@@ -52,13 +53,7 @@ export default function NavBar() {
                 </div>
 
                 <div className="search-bar">
-                    <input
-                        type="text"
-                        placeholder="Nhập tên sản phẩm để tìm kiếm..."
-                    />
-                    <button>
-                        <Search size={20}/>
-                    </button>
+                    <SearchBar/>
                 </div>
 
 

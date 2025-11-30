@@ -327,3 +327,30 @@ def get_top_sold_by_category(category_id):
         })
 
     return jsonify(result)
+
+@product_bp.route('search', methods=['GET'])
+def search_products():
+    keyword = request.args.get('q', '').strip()
+
+    if not keyword:
+        return jsonify({'products': []}), 200
+
+    products = Product.query.filter(Product.name.ilike(f'%{keyword}%'), Product.is_active == 1) \
+        .order_by(Product.sold_count.desc()) \
+        .limit(10).all()
+
+    results = []
+
+    for p in products:
+        final_price = float(p.price) * (1 - p.discount_percent / 100) if p.discount_percent > 0 else float(p.price)
+
+        results.append({
+            'id': p.id,
+            'name': p.name,
+            'image': p.img_url,
+            'original_price': float(p.price),
+            'final_price': round(final_price, 2),
+            'discount_percent': p.discount_percent
+        })
+
+    return jsonify(results), 200
