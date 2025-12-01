@@ -8,7 +8,6 @@ product_bp = Blueprint('products', __name__)
 @product_bp.route('/create-product', methods=['POST'])
 @admin_required
 def create_product():
-    # Lấy dữ liệu từ form
     sku = request.form.get('sku')
     category_id = request.form.get('category_id')
     name = request.form.get('name')
@@ -22,7 +21,6 @@ def create_product():
     is_new = request.form.get('is_new', 0)
     hash_tags_ids = request.form.getlist('hash_tags')
 
-    # Lấy file ảnh từ form
     img_file = request.files.get('image')
     img_url = None
 
@@ -36,17 +34,14 @@ def create_product():
         filename = secure_filename(img_file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
 
-        # Nếu file đã tồn tại → KHÔNG lưu lại nữa
         if not os.path.exists(file_path):
             img_file.save(file_path)
 
         img_url = f"{UPLOAD_FOLDER}{filename}"
 
-    # Kiểm tra thiếu field
     if not all([category_id, sku, stock, weight, origin, name, brand_id, price, discount_percent]):
         return jsonify({"message": "Missing required fields"}), 400
 
-    # Kiểm tra SKU tồn tại
     if Product.query.filter_by(sku=sku).first():
         return jsonify({"message": "SKU already exists"}), 400
 
@@ -137,7 +132,6 @@ def update_product(product_id):
     data = request.form
     img_file = request.files.get('image')
 
-    # Lấy field cơ bản
     sku = data.get('sku')
     category_id = data.get('category_id')
     name = data.get('name')
@@ -150,12 +144,9 @@ def update_product(product_id):
     origin = data.get('origin')
     is_active = data.get('is_active')
     is_best_seller = data.get('is_best_seller')
-
-    # --- 2. Lấy field mới (is_new) và danh sách Hashtag ---
     is_new = data.get('is_new', 0)
     hash_tags_ids = request.form.getlist('hash_tags')  # Lấy danh sách ['1', '3']
 
-    # Check missing (Thêm is_new vào check nếu cần, hoặc để mặc định)
     required = [
         sku, category_id, name, price, stock,
         brand_id, discount_percent, weight,
@@ -180,14 +171,9 @@ def update_product(product_id):
     brand_id = int(brand_id)
     discount_percent = float(discount_percent)
     price = float(price)
-
-    # Chuyển đổi trạng thái (Lưu ý: tùy db lưu 0/1 hay True/False)
-    # Ở đây mình giữ nguyên logic cũ của bạn là int 0/1
     product.is_active = int(is_active)
     product.is_best_seller = int(is_best_seller)
     product.is_new = int(is_new)  # <--- Cập nhật is_new
-
-    # --- LOGIC XỬ LÝ ẢNH (GIỮ NGUYÊN) ---
     upload_folder = "static/images/product_image/"
     new_img_url = product.img_url
     old_img_url = product.img_url
@@ -196,7 +182,6 @@ def update_product(product_id):
         import os
         from werkzeug.utils import secure_filename
 
-        # Đảm bảo thư mục tồn tại
         os.makedirs(upload_folder, exist_ok=True)
 
         filename = secure_filename(img_file.filename)
@@ -220,7 +205,6 @@ def update_product(product_id):
                     except:
                         pass
 
-    # --- CẬP NHẬT THÔNG TIN SẢN PHẨM ---
     product.sku = sku
     product.category_id = category_id
     product.name = name
@@ -232,12 +216,8 @@ def update_product(product_id):
     product.weight = weight
     product.origin = origin
     product.img_url = new_img_url
-
-    # --- 3. CẬP NHẬT HASHTAG ---
-    # Bước 1: Xóa sạch các hashtag hiện tại của sản phẩm
     product.hashtags = []
 
-    # Bước 2: Thêm lại các hashtag mới theo danh sách ID gửi lên
     if hash_tags_ids:
         for tag_id in hash_tags_ids:
             if not tag_id or str(tag_id).strip() == "":
@@ -292,22 +272,36 @@ def delete_product(product_id):
 
 @product_bp.route('/flash-sale', methods=['GET'])
 def get_flash_sale_products():
-    flash_sale_products = Product.query.filter(Product.discount_percent > 0)\
-    .order_by(Product.discount_percent.desc()).limit(5).all()
+    limit = request.args.get('limit', type=int)
+
+    query = Product.query.filter(
+        Product.discount_percent > 0,
+        Product.is_active == 1
+    ).order_by(Product.discount_percent.desc())
+
+    if limit:
+        products = query.limit(limit).all()
+    else:
+        products = query.all()
 
     result = []
-    for p in flash_sale_products:
+    for p in products:
         result.append({
             'id': p.id,
+            'category_id': p.category_id,
             'name': p.name,
-            'price': str(p.price),
+            'price': float(p.price),
             'discount_percent': p.discount_percent,
             'rating': p.rating,
             'sold_count': p.sold_count,
-            'image': p.img_url
+            'image': p.img_url,
+            'is_new': p.is_new
         })
 
-    return jsonify(result), 200
+    return jsonify({
+        'products': result,
+        'hashtag': 'Flash Sale Giá Sốc'
+    }), 200
 
 @product_bp.route('/top-product-sold-by-category/<int:category_id>', methods=['GET'])
 def get_top_sold_by_category(category_id):
@@ -354,3 +348,84 @@ def search_products():
         })
 
     return jsonify(results), 200
+
+@product_bp.route('/new-products', methods=['GET'])
+def get_new_products():
+    # Lấy sản phẩm có is_new = 1 và active = 1
+    # Sắp xếp theo ngày tạo mới nhất
+    products = Product.query.filter(
+        Product.is_new == 1,
+        Product.is_active == 1
+    ).order_by(Product.created_at.desc()).all()
+
+    result = []
+    for p in products:
+        result.append({
+            'id': p.id,
+            'category_id': p.category_id,
+            'name': p.name,
+            'price': float(p.price),
+            'discount_percent': p.discount_percent,
+            'rating': p.rating,
+            'sold_count': p.sold_count,
+            'image': p.img_url,
+            'is_new': p.is_new
+        })
+
+    return jsonify({
+        'products': result,
+        'hashtag': 'Sản phẩm mới về'
+    }), 200
+
+
+@product_bp.route('/hashtag/<int:id>', methods=['GET'])
+def get_products_by_hashtag(id):
+    # 1. Tìm hashtag theo ID
+    tag = HashTag.query.get(id)
+
+    if not tag:
+        return jsonify({'message': 'Hashtag not found', 'products': []}), 404
+
+    # 2. Lấy danh sách sản phẩm thuộc hashtag đó
+    # Dùng relationship .products đã khai báo trong Model
+    # Chỉ lấy sản phẩm active
+    products = tag.products.filter(Product.is_active == 1).all()
+
+    # 3. Serialize
+    result = []
+    for p in products:
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'price': float(p.price),
+            'discount_percent': p.discount_percent,
+            'rating': p.rating,
+            'sold_count': p.sold_count,
+            'image': p.img_url,
+            'is_new': p.is_new
+        })
+
+    # 4. Trả về cả tên hashtag để React setPageTitle
+    return jsonify({
+        'hashtag': tag.name,  # Ví dụ: "Whey Protein"
+        'products': result
+    }), 200
+
+@product_bp.route('/products-by-category/<int:category_id>', methods=['GET'])
+def get_products_by_category(category_id):
+    products = Product.query.filter_by(category_id=category_id, is_active=1).order_by(Product.sold_count.desc()).all()
+
+    result = []
+    for p in products:
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'price': float(p.price),
+            'discount_percent': p.discount_percent,
+            'rating': p.rating,
+            'sold_count': p.sold_count,
+            'image': p.img_url,
+            'is_new': p.is_new
+        })
+
+    return jsonify(result), 200

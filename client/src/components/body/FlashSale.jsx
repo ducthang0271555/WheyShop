@@ -12,8 +12,12 @@ function FlashSale() {
     const fetchFlashSaleProducts = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/products/flash-sale`);
-            setProducts(response.data);
+            const response = await axios.get(`${apiUrl}/products/flash-sale`, {
+                params: {
+                    limit: 5
+                }
+            });
+            setProducts(response.data.products);
         } catch (error) {
             console.error("Error fetching flash sale products:", error);
         } finally {
@@ -36,18 +40,15 @@ function FlashSale() {
                 <div className="fs-title-wrapper">
                     <h2 className="fs-title">FLASH SALE</h2>
                 </div>
-                <a href="/flash-sale" className="fs-view-all">Xem tất cả {'>'}</a>
+                <a href="/listing/flash-sale" className="fs-view-all">Xem tất cả {'>'}</a>
             </div>
 
-            {/* 4. Xử lý hiển thị */}
             {isLoading ? (
                 // Trường hợp đang tải: Hiển thị Spinner
                 <div style={{height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    {/* Spinner màu trắng cho nổi trên nền cam */}
                     <LoadingSpinner/>
                 </div>
             ) : (
-                // Trường hợp tải xong: Hiển thị danh sách
                 <div className="flash-sale-list">
                     {products.length > 0 ? (
                         products.map((product) => (
@@ -59,7 +60,6 @@ function FlashSale() {
                             </div>
                         ))
                     ) : (
-                        // Trường hợp API trả về rỗng (không có sản phẩm sale)
                         <div style={{color: 'white', gridColumn: '1 / -1', textAlign: 'center'}}>
                             Hiện chưa có chương trình Flash Sale nào.
                         </div>

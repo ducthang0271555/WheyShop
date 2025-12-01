@@ -24,28 +24,28 @@ export default function HomePage() {
                         title="WHEY PROTEIN"
                         categoryId={25}
                         bannerImg="/assets/image-banner/tang-co-vuot-troi.png"
-                        bannerLink="/whey-protein"
+                        bannerLink="/hashtag/14"
                     />
 
                     <CategorySection
                         title="THỰC PHẨM BỔ SUNG"
                         categoryId={27}
                         bannerImg="/assets/image-banner/thuc-pham-bo-sung.png"
-                        bannerLink="/thuc-pham-bo-sung"
+                        bannerLink="listing/category/27"
                     />
 
                     <CategorySection
                         title="VITAMIN"
                         categoryId={26}
                         bannerImg="/assets/image-banner/vitamin.png"
-                        bannerLink="/vitamin"
+                        bannerLink="/listing/category/26"
                     />
 
                     <CategorySection
                         title="PHỤ KIỆN TẬP LUYỆN"
                         categoryId={29}
                         bannerImg="/assets/image-banner/phu-kien.png"
-                        bannerLink="/vitamin"
+                        bannerLink="/listing/category/29"
                     />
                 </div>
 

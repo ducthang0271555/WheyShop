@@ -32,7 +32,7 @@
 }
 
 .search-btn {
-    background-color: #ff4d4f;
+    background-color: #d70018;
     color: white;
     border: none;
     padding: 0 15px;
@@ -78,7 +78,19 @@
     padding: 10px 15px;
     text-decoration: none;
     border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
+    transition: all 0.2s ease-in-out;
+    border-left: 3px solid transparent;
+}
+
+.search-item:hover {
+    background-color: #fafafa;
+    border-left: 3px solid #d70018;
+    padding-left: 12px;
+}
+
+.search-item:hover .item-name {
+    color: #007bff;
+    font-weight: 600;
 }
 
 .search-item:hover {
@@ -119,4 +131,37 @@
     color: #999;
     text-decoration: line-through;
     font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .search-wrapper {
+        max-width: 100%;
+        margin: 10px 0;
+    }
+
+    .search-input-group input {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .search-btn {
+        padding: 0 20px;
+        font-size: 18px;
+    }
+
+    .dropdown-list {
+        max-height: 40vh;
+    }
+
+    .search-item {
+        padding: 12px 15px;
+    }
+
+    .item-name {
+        font-size: 14px;
+    }
+
+    .old-price {
+        display: none;
+    }
 }

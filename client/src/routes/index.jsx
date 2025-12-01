@@ -13,6 +13,7 @@ import ManagerBrand from "../pages/admin/ManageBrand";
 import ManageProduct from "../pages/admin/ManageProduct";
 import ManageHashtag from "../pages/admin/ManageHashtag";
 import AdminLayout from "../layouts/AdminLayout";
+import ProductListingPage from "../components/product/ProductListingPage";
 
 const routes = [
     {
@@ -82,6 +83,22 @@ const routes = [
             }
         ],
     },
+    {
+        path: "hashtag/:id",
+        element: <ProductListingPage/>
+    },
+    {
+        path: "/listing/:type",
+        element: <ProductListingPage/>
+    },
+    {
+        path: "/listing/:type",
+        element: <ProductListingPage/>
+    },
+    {
+        path: "/listing/:type/:id",
+        element: <ProductListingPage/>
+    }
 ];
 
 export default routes;

@@ -43,7 +43,7 @@ const CategorySection = ({ title, categoryId, bannerImg, bannerLink = "#" }) => 
 
             {/* 1. HEADER: Tên danh mục + Filter Tags */}
             <div className="cat-header">
-                <a href={`/category/${categoryId}`}><h2 className="cat-title">{title}</h2></a>
+                <a href={`listing/category/${categoryId}`}><h2 className="cat-title">{title}</h2></a>
 
                 <div className="cat-header-right">
                     {/* Nút xem tất cả góc trên (tùy chọn) */}
@@ -65,7 +65,7 @@ const CategorySection = ({ title, categoryId, bannerImg, bannerLink = "#" }) => 
 
             {/* 3. NÚT XEM TẤT CẢ (Dưới cùng) */}
             <div className="cat-footer-action">
-                <a href={`/category/${categoryId}`} className="btn-cat-view-all">
+                <a href={`listing/category/${categoryId}`} className="btn-cat-view-all">
                     Xem tất cả {'>'}
                 </a>
             </div>

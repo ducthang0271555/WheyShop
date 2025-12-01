@@ -1,5 +1,5 @@
 import '../../styles/components/header/navbar.css';
-import {ShoppingCart, User, Phone, Menu} from "lucide-react";
+import {ShoppingCart, User, Phone} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import ConfirmModal from "../modals/ConfirmModal";
@@ -46,10 +46,10 @@ export default function NavBar() {
                         alt="WheyShop"
                         onClick={() => navigate('/')}
                     />
-                    <button>
-                        <Menu size={20}/>
-                        <span>Danh mục</span>
-                    </button>
+                    {/*<button>*/}
+                    {/*    <Menu size={20}/>*/}
+                    {/*    <span>Danh mục</span>*/}
+                    {/*</button>*/}
                 </div>
 
                 <div className="search-bar">

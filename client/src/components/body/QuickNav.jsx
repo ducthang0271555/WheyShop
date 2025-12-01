@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import "../../styles/components/body/QuickNav.css"
 import {useNavigate} from 'react-router-dom';
+import {getBannerKey} from "../config/bannerConfig";
 import axios from "axios";
 
 
@@ -9,13 +10,15 @@ const STATIC_ITEMS = [
         id: 'flash-sale',
         name: 'Flash Sale',
         image: '/assets/icons/flash-sale.png',
-        link: '/flash-sale'
+        link: '/listing/flash-sale',
+        type: 'flashSale'
     },
     {
         id: 'san-pham-moi',
         name: 'Sản Phẩm Mới',
         image: '/assets/icons/new-product.png',
-        link: '/new-products'
+        link: '/listing/new-products',
+        type: 'newArrival'
     }
 ];
 
@@ -27,25 +30,17 @@ function QuickNav() {
     useEffect(() => {
         const fetchHashtags = async () => {
             try {
-                // 2. Gọi API lấy danh sách Hashtag
                 const response = await axios(`${apiUrl}/hash_tags/get-all-hash-tags`);
                 const data = await response.data;
 
-                // Kiểm tra dữ liệu trả về có đúng format { "hash_tags": [...] } không
                 if (data.hash_tags) {
                     const apiItems = data.hash_tags.map(tag => ({
                         id: tag.id,       // VD: 14
                         name: tag.name,   // VD: "Whey Protein"
-
-                        // XỬ LÝ ẢNH: Nối domain backend vào đường dẫn static
-                        // VD: http://127.0.0.1:5000/static/images/hash_tag_image/whey.png
                         image: `${apiUrl}/${tag.image_url}`,
-
-                        // XỬ LÝ LINK: Dùng ID để định tuyến
-                        link: `/hashtag/${tag.id}`
+                        link: `/hashtag/${tag.id}`,
+                        type: getBannerKey(tag.name)
                     }));
-
-                    // Gộp Static + API
                     setNavItems([...STATIC_ITEMS, ...apiItems]);
                 }
             } catch (error) {
@@ -57,6 +52,16 @@ function QuickNav() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const handleNavigate = (item) => {
+            // Truyền bannerKey qua state để trang kia nhận được
+            navigate(item.link, {
+                state: {
+                    bannerKey: item.type,
+                    title: item.name
+                }
+            });
+        };
+
     return (
         <div className="quick-nav-container">
             <div className="quick-nav-grid">
@@ -64,13 +69,12 @@ function QuickNav() {
                     <div
                         key={index}
                         className="quick-nav-item"
-                        onClick={() => navigate(item.link)}
+                        onClick={() => handleNavigate(item)}
                     >
                         <div className="quick-nav-icon-box">
                             <img
                                 src={item.image}
                                 alt={item.name}
-                                // Nếu ảnh lỗi thì hiện ảnh mặc định
                                 onError={(e) => {
                                     e.target.src = '/assets/icons/default.png'
                                 }}

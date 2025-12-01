@@ -1,15 +1,15 @@
 .navbar {
     width: 100%;
-    background-color: white; /* hoặc màu bạn muốn */
+    background-color: white;
 }
 
 .navbar .container {
     display: flex;
     align-items: center;
-    justify-content: center; /* Căn giữa toàn bộ nội dung */
-    gap: 20px; /* thêm khoảng cách giữa các phần */
-    max-width: 1200px; /* Giới hạn chiều rộng để nội dung không tràn */
-    margin: 0 auto; /* Căn giữa phần container trong trang */
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 10px 20px;
 }
 
@@ -31,14 +31,14 @@
 
 
 .logo-and-categories button {
-    display: flex; /* Dùng flexbox để căn icon và chữ */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    gap: 6px; /* Tạo khoảng cách giữa icon và chữ */
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-left: 15px;
     padding: 8px 12px;
     font-size: 16px;
     cursor: pointer;
-    background-color: orangered;
+    background-color: #d70018;
     color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -47,7 +47,7 @@
 
 
 .logo-and-categories button:hover {
-    background-color: #e04800;
+    background-color: #d70018;
 }
 
 .search-bar {
@@ -60,17 +60,17 @@
     flex: 1;
     padding: 10px 15px;
     border: 1px solid #ccc;
-    border-right: none; /* bỏ border bên phải để dính với nút */
-    border-radius: 4px 0 0 4px; /* bo tròn bên trái */
+    border-right: none;
+    border-radius: 4px 0 0 4px;
     outline: none;
     font-size: 13px;
     width: 200px;
 }
 
 .search-bar button {
-    background-color: orangered;
+    background-color: #d70018;
     border: 1px solid #ccc;
-    border-radius: 0 4px 4px 0; /* bo tròn bên phải */
+    border-radius: 0 4px 4px 0;
     color: white;
     padding: 0 15px;
     cursor: pointer;
@@ -100,12 +100,12 @@
 .contact svg,
 .cart svg,
 .login svg {
-    background-color: orangered; /* nền cam cho icon */
-    color: white; /* icon trắng */
-    border-radius: 50%; /* tròn */
-    padding: 6px; /* làm icon có khoảng cách */
-    border: 1px solid orangered; /* viền cam */
-    flex-shrink: 0; /* icon không co lại */
+    background-color: #d70018;
+    color: white;
+    border-radius: 50%;
+    padding: 6px;
+    border: 1px solid orangered;
+    flex-shrink: 0;
 }
 
 .contact:hover,
@@ -154,7 +154,6 @@
 
 
 @media (max-width: 768px) {
-    /* Cho phép navbar xuống hàng khi chật */
     .navbar .container {
         flex-wrap: wrap;
         justify-content: center;
@@ -162,22 +161,19 @@
         padding: 8px;
     }
 
-    /* Logo nhỏ hơn */
     .logo-and-categories img {
         height: 50px;
     }
 
-    /* Nút danh mục nhỏ gọn — chỉ hiển thị icon */
     .logo-and-categories button {
         padding: 6px 10px;
         font-size: 14px;
     }
 
     .logo-and-categories button span {
-        display: none; /* Ẩn chữ “Danh mục” */
+        display: none;
     }
 
-    /* Thanh tìm kiếm full chiều ngang */
     .search-bar {
         width: 50%;
         margin: 5px 0;
@@ -189,22 +185,19 @@
         font-size: 13px;
     }
 
-    /* Ẩn phần liên hệ và đăng nhập */
     .contact,
     .login {
         display: none;
     }
 
-    /* Giỏ hàng giữ lại nhưng gọn hơn */
     .cart span {
-        display: none; /* Ẩn chữ “Giỏ hàng” */
+        display: none;
     }
 
     .cart svg {
         padding: 8px;
     }
 
-    /* Căn giữa icon giỏ hàng */
     .cart {
         justify-content: center;
     }
