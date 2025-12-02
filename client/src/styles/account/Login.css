@@ -50,12 +50,12 @@ body {
 }
 
 .input:focus {
-    border-color: orangered;
+    border-color: #d32f2f;
 }
 
 /* Nút đăng nhập */
 .form-btn {
-    background-color: orangered;
+    background-color: #d32f2f;
     color: white;
     border: none;
     border-radius: 6px;
@@ -80,7 +80,7 @@ body {
 
 .page-link-label {
     cursor: pointer;
-    color: orangered;
+    color: #d32f2f;
 }
 
 .page-link-label:hover {
@@ -96,7 +96,7 @@ body {
 }
 
 .sign-up-link {
-    color: orangered;
+    color: #d32f2f;
     font-weight: 600;
     cursor: pointer;
     margin-left: 5px;

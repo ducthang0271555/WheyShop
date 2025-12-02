@@ -31,11 +31,12 @@ def create_app():
     from .models import user, product, category, order, cart, order_item, brand, product_flavor, hash_tag
 
     # Import routes SAU KHI models được load
-    from .routes import user_bp, brand_bp, category_bp, product_bp, hash_tag_bp
+    from .routes import user_bp, brand_bp, category_bp, product_bp, hash_tag_bp, product_flavor_bp
     app.register_blueprint(user_bp, url_prefix='/users')
     app.register_blueprint(brand_bp, url_prefix='/brands')
     app.register_blueprint(category_bp, url_prefix='/categories')
     app.register_blueprint(product_bp, url_prefix='/products')
     app.register_blueprint(hash_tag_bp, url_prefix='/hash_tags')
+    app.register_blueprint(product_flavor_bp, url_prefix='/product_flavors')
 
     return app

@@ -113,6 +113,7 @@ function ManageProduct() {
             formData.append("image", imageFile);
         }
 
+        setLoading(true);
         try {
             await axios.post(`${apiUrl}/products/create-product`, formData, {
                 headers: {
@@ -134,6 +135,8 @@ function ManageProduct() {
         } catch (err) {
             console.log(err);
             alert("❌ Lỗi khi thêm sản phẩm!");
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -18,11 +18,24 @@
     gap: 10px;
 }
 
-.edit-btn, .delete-btn, .cancel-btn, .save-btn {
+.edit-btn, .delete-btn, .cancel-btn, .save-btn, .add-flavor-btn {
     padding: 10px 16px;
     border-radius: 6px;
     cursor: pointer;
 }
+
+.add-flavor-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    min-width: 125px;
+    width: auto;
+}
+
+.add-flavor-btn:hover {
+    background: #218838;
+}
+
 .save-btn {
     background: #0a7cff;
     color: white;
@@ -34,4 +47,222 @@
 .cancel-btn {
     background: #999;
     color: white;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    width: 400px;
+    max-width: 90%;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+    font-size: 1.25rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-content .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Màu đen mờ 50% */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Đảm bảo nằm trên cùng */
+    backdrop-filter: blur(2px); /* Hiệu ứng làm mờ nền phía sau (tùy chọn) */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="number"]:focus {
+    border-color: #007bff; /* Màu viền khi click vào */
+}
+
+.modal-content input[type="file"] {
+    font-size: 0.9rem;
+    padding: 5px 0;
+}
+
+.modal-content .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    align-items: center;
+}
+
+.modal-content .button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.modal-content .button:active {
+    transform: scale(0.98);
+}
+
+.modal-content .submit-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.modal-content .submit-btn:hover {
+    background-color: #218838;
+}
+
+/* Nút Cancel (Hủy) */
+.modal-content .cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.modal-content .cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+/* --- Flavor List Styles --- */
+.flavor-list-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    margin-top: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.flavor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.flavor-item-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.flavor-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: #d32f2f;
+}
+
+.flavor-img-wrapper {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flavor-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.flavor-img-wrapper .no-img {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+}
+
+.flavor-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.flavor-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.flavor-meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #666;
+}
+
+.flavor-meta .price {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.empty-flavor {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+/* 5. Animation đơn giản */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
