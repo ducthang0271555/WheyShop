@@ -124,7 +124,7 @@ def update_flavor(flavor_id):
                     except:
                         pass
 
-    flavor.name = flavor_name
+    flavor.flavor_name = flavor_name
     flavor.price = price
     flavor.stock = stock
     flavor.image_url = new_img_url
