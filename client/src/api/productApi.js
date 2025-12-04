@@ -26,7 +26,7 @@ const productApi = {
     },
 
     getNewProduct: (params) => {
-        return axiosClient.get('products/new-products', {params});
+        return axiosClient.get('/products/new-products', {params});
     },
 
     searchProduct: (query) => {
