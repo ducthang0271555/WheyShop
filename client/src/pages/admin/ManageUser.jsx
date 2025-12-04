@@ -1,23 +1,18 @@
 import '../../styles/admin/ManageUser.css';
 import {useEffect, useState} from 'react';
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
-import axios from 'axios';
+import userApi from "../../api/userApi";
 
 const ManageUser = () => {
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUsers = async () => {
+            setLoading(true);
             try {
-                const token = localStorage.getItem('access_token');
-                const res = await axios.get(`${apiUrl}/users/get-all-users`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setUsers(res.data);
+                const res = await userApi.getAll();
+                setUsers(res);
             } catch (error) {
                 console.error("Lỗi khi tải danh sách người dùng:", error);
             } finally {

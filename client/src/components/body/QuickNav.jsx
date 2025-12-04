@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import "../../styles/components/body/QuickNav.css"
 import {useNavigate} from 'react-router-dom';
 import {getBannerKey} from "../config/bannerConfig";
-import axios from "axios";
+import hashtagApi from "../../api/hashtagApi";
 
 
 const STATIC_ITEMS = [
@@ -30,9 +30,7 @@ function QuickNav() {
     useEffect(() => {
         const fetchHashtags = async () => {
             try {
-                const response = await axios(`${apiUrl}/hash_tags/get-all-hash-tags`);
-                const data = await response.data;
-
+                const data = await hashtagApi.getAll();
                 if (data.hash_tags) {
                     const apiItems = data.hash_tags.map(tag => ({
                         id: tag.id,       // VD: 14
@@ -53,7 +51,6 @@ function QuickNav() {
     }, []);
 
     const handleNavigate = (item) => {
-            // Truyền bannerKey qua state để trang kia nhận được
             navigate(item.link, {
                 state: {
                     bannerKey: item.type,

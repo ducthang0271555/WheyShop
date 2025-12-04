@@ -4,7 +4,7 @@ import SuccessModal from "../../components/modals/SuccessModal";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import axios from "axios";
+import userApi from "../../api/userApi";
 
 function ChangePassword() {
     const [loading, setLoading] = useState(false);
@@ -14,7 +14,6 @@ function ChangePassword() {
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -37,17 +36,8 @@ function ChangePassword() {
 
         setLoading(true);
         try {
-            const token = localStorage.getItem("access_token");
-            await axios.post(`${apiUrl}/users/change-password`, {
-                old_password: oldPassword,
-                new_password: newPassword,
-                confirm_password: confirmPassword
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
+            const dataPassword = {old_password: oldPassword, new_password: newPassword, confirm_password: confirmPassword}
+            await userApi.changePassword(dataPassword);
             setShowModal(true);
         } catch (err) {
             setError(err.response?.data?.error || "Đổi mật khẩu thất bại.");

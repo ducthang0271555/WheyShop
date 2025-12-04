@@ -16,7 +16,6 @@ function ContactButton() {
                 <div className="contact-overlay" onClick={() => setIsOpen(false)}></div>
             )}
 
-            {/* --- Menu danh sách (Hiện ra khi isOpen = true) --- */}
             <div className={`contact-menu ${isOpen ? 'show' : ''}`}>
                 <div className="contact-header">
                     <span>Chọn hình thức liên hệ</span>
@@ -46,7 +45,6 @@ function ContactButton() {
                 </a>
             </div>
 
-            {/* --- Nút chính (Luôn hiển thị) --- */}
             <div className="contact-main-btn" onClick={toggleMenu}>
                 <div className="btn-ring"></div>
                 <div className="btn-ring-circle"></div>

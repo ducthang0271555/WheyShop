@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ConfirmModal from "../modals/ConfirmModal";
+import {objectToFormData} from "../../utils/formDataHelper";
 
 export default function FlavorModal({
     isOpen,
@@ -17,6 +18,7 @@ export default function FlavorModal({
         image_url: ""
     });
     const [imageFile, setImageFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [internalEdit, setInternalEdit] = useState(mode === "add");
 
@@ -28,23 +30,41 @@ export default function FlavorModal({
                 stock: data.stock || 0,
                 image_url: data.image_url || ""
             });
+
+            if (data.image_url) {
+                const url = data.image_url.startsWith('http')
+                    ? data.image_url
+                    : `${apiUrl}/${data.image_url}`;
+                setPreviewImage(url);
+            } else {
+                setPreviewImage(null);
+            }
+
         } else {
             setLocalData({ name: "", price: "", stock: 0, image_url: "" });
+            setPreviewImage(null);
         }
         setInternalEdit(mode === "add");
         setImageFile(null);
-    }, [data, mode, isOpen]);
+    }, [data, mode, apiUrl, isOpen]);
 
     if (!isOpen) return null;
 
-    const handleSubmit = () => {
-        const formData = new FormData();
-        formData.append("name", localData.name);
-        formData.append("price", localData.price);
-        formData.append("stock", localData.stock);
-        if (imageFile) {
-            formData.append("image", imageFile);
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setPreviewImage(URL.createObjectURL(file));
         }
+    };
+
+    const handleSubmit = () => {
+        const flavorData = {
+            name: localData.name,
+            price: localData.price,
+            stock: localData.stock
+        }
+        const formData = objectToFormData(flavorData, imageFile);
         onSave(formData, data?.id);
     };
 
@@ -92,18 +112,26 @@ export default function FlavorModal({
                 <div className="form-group image-upload">
                     <label>Ảnh hương vị</label>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
-                        {localData.image_url && (
+                        {previewImage ? (
                             <img
-                                src={localData.image_url.startsWith('http') ? localData.image_url : `${apiUrl}/${localData.image_url}`}
+                                src={previewImage}
                                 alt="thumb"
-                                style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px", border: "1px solid #ccc" }}
+                                style={{
+                                    width: "50px",
+                                    height: "50px",
+                                    objectFit: "cover",
+                                    borderRadius: "4px",
+                                    border: "1px solid #ccc"
+                                }}
                             />
+                        ) : (
+                            <div style={{fontSize: "12px", color: "#888"}}>Chưa có ảnh</div>
                         )}
                         <input
                             type="file"
                             disabled={!internalEdit}
                             accept="image/*"
-                            onChange={(e) => setImageFile(e.target.files[0])}
+                            onChange={handleImageChange}
                         />
                     </div>
                 </div>

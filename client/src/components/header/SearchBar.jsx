@@ -2,7 +2,7 @@ import "../../styles/components/header/SearchBar.css";
 import {Link} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
-import axios from "axios";
+import productApi from "../../api/productApi";
 import {FaSearch} from "react-icons/fa";
 
 const formatCurrency = (amount) => {
@@ -34,8 +34,8 @@ function SearchBar() {
         setIsLoading(true);
         setShowDropdown(true);
         try {
-            const response = await axios.get(`${apiUrl}/products/search?q=${query}`);
-            setResults(response.data);
+            const response = await productApi.searchProduct(query);
+            setResults(response);
         } catch (error) {
             console.error("Error fetching search results:", error);
         } finally {

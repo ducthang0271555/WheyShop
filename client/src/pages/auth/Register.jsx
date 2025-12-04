@@ -4,7 +4,7 @@ import Header from "../../components/header/Header";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import {useNavigate} from "react-router-dom";
-import axios from "axios";
+import userApi from "../../api/userApi";
 
 
 function Register() {
@@ -16,7 +16,6 @@ function Register() {
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -39,12 +38,7 @@ function Register() {
 
         setLoading(true);
         try {
-            await axios.post(`${apiUrl}/users/register`, {
-                username,
-                email,
-                password
-            });
-
+            await userApi.register({username, email, password});
             setShowModal(true);
         } catch (err) {
             setError(err.response?.data?.message || "Đăng ký thất bại.");

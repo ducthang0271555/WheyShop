@@ -2,8 +2,8 @@ import {useState} from "react";
 import "../../styles/account/Login.css";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import Header from "../../components/header/Header";
-import axios from 'axios';
 import {useNavigate} from "react-router-dom";
+import userApi from "../../api/userApi";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -11,7 +11,6 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -29,21 +28,12 @@ export default function Login() {
 
         setLoading(true);
         try {
-            // Login và nhận access_token
-            const { data: loginData } = await axios.post(`${apiUrl}/users/login`, {
-                username,
-                password
-            });
-
-            const token = loginData.access_token;
+            const loginRes = await userApi.login({username, password});
+            const token = loginRes.access_token;
             localStorage.setItem("access_token", token);
 
-            // Gọi dashboard ngay để xác thực token
-            const { data: dashboardData } = await axios.get(`${apiUrl}/users/dashboard`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const currentUser = dashboardData.user;
+            const dashboardRes = await userApi.getProfile();
+            const currentUser = dashboardRes.user;
 
             if (currentUser.role === 1) {
                 navigate("/admin/dashboard");
@@ -52,6 +42,7 @@ export default function Login() {
             }
 
         } catch (err) {
+            console.error(err)
             setError("Đăng nhập thất bại! Sai tài khoản hoặc mật khẩu hoặc token không hợp lệ.");
             localStorage.removeItem("access_token");
         } finally {

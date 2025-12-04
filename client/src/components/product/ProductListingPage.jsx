@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, useLocation} from 'react-router-dom';
-import axios from 'axios';
+import categoryApi from "../../api/categoryApi";
+import productApi from "../../api/productApi";
 import Header from "../header/Header";
 import ProductCard from "./ProductCard";
 
@@ -13,7 +14,6 @@ import "../../styles/components/product/ProductListingPage.css";
 const ProductListingPage = () => {
     const {id, type} = useParams();
     const location = useLocation();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     const [originalProducts, setOriginalProducts] = useState([]);
     const [displayedProducts, setDisplayedProducts] = useState([]);
@@ -30,14 +30,14 @@ const ProductListingPage = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const res = await axios.get(`${apiUrl}/categories/get-all-categories`);
-                setCategories(res.data.categories || res.data);
+                const res = await categoryApi.getAll();
+                setCategories(res.categories);
             } catch (err) {
                 console.error("Lỗi lấy danh mục:", err);
             }
         };
         fetchCategories();
-    }, [apiUrl]);
+    }, []);
 
     useEffect(() => {
         let key = '';
@@ -76,30 +76,27 @@ const ProductListingPage = () => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                let url = '';
-
+                let response = null;
                 if (type === 'category' && id) {
-                    url = `${apiUrl}/products/products-by-category/${id}`;
+                    response = await productApi.getProductByCategory(id);
                 } else if (id) {
-                    url = `${apiUrl}/products/hashtag/${id}`;
+                    response = await productApi.getProductByHashtag(id);
                 } else if (key === 'flashSale') {
-                    url = `${apiUrl}/products/flash-sale`;
+                    response = await productApi.getProductFlashSale();
                 } else if (key === 'newArrival') {
-                    url = `${apiUrl}/products/new-products`;
+                    response = await productApi.getNewProduct();
                 }
 
-                if (url) {
-                    const response = await axios.get(url);
-                    const data = response.data;
-                    const list = Array.isArray(data) ? data : (data.products || []);
+                if (response) {
+                    const list = Array.isArray(response) ? response : (response.products || []);
 
                     setOriginalProducts(list);
                     setDisplayedProducts(list);
 
-                    if (data.hashtag && type !== 'category') {
-                        setPageTitle(data.hashtag);
+                    if (response.hashtag && type !== 'category') {
+                        setPageTitle(response.hashtag);
                         if (!location.state) {
-                            const mappedKey = getBannerKey(data.hashtag);
+                            const mappedKey = getBannerKey(response.hashtag);
                             if (banners[mappedKey]) setCurrentBanners(banners[mappedKey]);
                         }
                     }
@@ -116,7 +113,7 @@ const ProductListingPage = () => {
 
         fetchProducts();
         window.scrollTo(0, 0);
-    }, [id, type, apiUrl, location.state]);
+    }, [id, type, location.state]);
 
     useEffect(() => {
         if (type === 'category' && categories.length > 0 && id) {

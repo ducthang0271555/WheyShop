@@ -3,24 +3,24 @@ import "../../styles/admin/ManageProduct.css";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ProductCard from "../../components/product/ProductCard";
 import EditProductForm from "../../components/product/EditProductForm";
-import axios from "axios";
+import {objectToFormData} from "../../utils/formDataHelper";
+import productApi from "../../api/productApi";
+import categoryApi from "../../api/categoryApi";
+import brandApi from "../../api/brandApi";
+import hashtagApi from "../../api/hashtagApi";
 
 function ManageProduct() {
-    const apiUrl = process.env.REACT_APP_API_URL;
 
-    // Dữ liệu chính
-    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
     const [hashtagsList, setHashtagsList] = useState([]);
 
-    // UI state
     const [selected, setSelected] = useState("list");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Form add product
     const [name, setName] = useState("");
     const [sku, setSku] = useState("");
     const [categoryId, setCategoryId] = useState("");
@@ -36,19 +36,15 @@ function ManageProduct() {
 
     const [selectedHashtags, setSelectedHashtags] = useState([]);
 
-    const token = localStorage.getItem("access_token");
-
     // ====================== FETCH DATA =========================
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${apiUrl}/products/get-all-products`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setCategories(res.data);
+            const res = await productApi.getAll()
+            setProducts(res);
+        } catch (error) {
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -61,68 +57,46 @@ function ManageProduct() {
 
     useEffect(() => {
         const fetchLists = async () => {
-            const resCat = await axios.get(`${apiUrl}/categories/get-all-categories`);
-            const resBrand = await axios.get(`${apiUrl}/brands/get-all-brands`);
-            const resHash = await axios.get(`${apiUrl}/hash_tags/get-all-hash-tags`);
+            const resCat = await categoryApi.getAll();
+            const resBrand = await brandApi.getAll();
+            const resHash = await hashtagApi.getAll();
 
-            setCategoriesList(resCat.data.categories);
-            setBrandsList(resBrand.data.brands);
-            setHashtagsList(resHash.data.hash_tags || []);
+            setCategoriesList(resCat.categories);
+            setBrandsList(resBrand.brands);
+            setHashtagsList(resHash.hash_tags || []);
         };
         fetchLists();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // ====================== LOGIC CHỌN HASHTAG =========================
-
         const toggleHashtag = (id) => {
             setSelectedHashtags(prev => {
                 if (prev.includes(id)) {
-                    // Nếu đã chọn thì bỏ chọn
                     return prev.filter(itemId => itemId !== id);
                 } else {
-                    // Chưa chọn thì thêm vào
                     return [...prev, id];
                 }
             });
         };
-
-    // ====================== ADD PRODUCT =========================
-
+    //=================== CREATE =================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("sku", sku);
-        formData.append("category_id", categoryId);
-        formData.append("brand_id", brandId);
-        formData.append("price", price);
-        formData.append("discount_percent", discountPercent);
-        formData.append("stock", stock);
-        formData.append("weight", weight);
-        formData.append("origin", origin);
-        formData.append("description", description);
-        formData.append("is_new", isNew);
+        const productData = {
+            name, sku, brand_id: brandId,
+            category_id: categoryId,
+            price, discount_percent: discountPercent,
+            stock, weight, origin, description,
+            is_new: isNew, hash_tags: selectedHashtags
+        };
 
-        selectedHashtags.forEach(id => {
-            formData.append("hash_tags", id);
-        });
-
-        if (imageFile) {
-            formData.append("image", imageFile);
-        }
+        const formData = objectToFormData(productData, imageFile);
 
         setLoading(true);
         try {
-            await axios.post(`${apiUrl}/products/create-product`, formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data"
-                },
-            });
+            await productApi.create(formData);
 
-            alert("✅ Thêm sản phẩm thành công!");
+            alert("Thêm sản phẩm thành công!");
 
             // Reset form sau khi thành công
             setName(""); setSku(""); setCategoryId(""); setBrandId("");
@@ -134,7 +108,7 @@ function ManageProduct() {
             fetchData();
         } catch (err) {
             console.log(err);
-            alert("❌ Lỗi khi thêm sản phẩm!");
+            alert("Lỗi khi thêm sản phẩm!");
         } finally {
             setLoading(false);
         }
@@ -143,61 +117,39 @@ function ManageProduct() {
     // ====================== UPDATE PRODUCT =========================
 
     const handleUpdateProduct = async (id, form, imageFile) => {
-        const fd = new FormData();
+        const fd = objectToFormData(form, imageFile)
 
-        for (const key in form) {
-            if (Array.isArray(form[key])) {
-                form[key].forEach((item) => {
-                    fd.append(key, item); // Append từng item riêng lẻ: hash_tags=1, hash_tags=2
-                });
-            } else {
-                fd.append(key, form[key]);
-            }
+        setLoading(true);
+        try {
+            await productApi.update(id, fd);
+            alert("Cập nhật sản phẩm thành công!");
+            fetchData();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
-
-        if (imageFile) {
-            fd.append("image", imageFile);
-        }
-
-        const res = await axios.put(`${apiUrl}/products/update-product/${id}`, fd, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data"
-            }
-        });
-        alert("✅ Cập nhật sản phẩm thành công!");
-        fetchData();
-
-        return res;
     };
 
 
     // ====================== DELETE PRODUCT =========================
 
     const handleDeleteProduct = async (id) => {
-        await axios.delete(`${apiUrl}/products/delete-product/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
+        await productApi.delete(id);
         fetchData();
         setSelectedProduct(null);
     };
 
     const handleSelectProduct = async (id) => {
-        const res = await axios.get(`${apiUrl}/products/get-product/${id}`);
-        setSelectedProduct(res.data.product);
+        const res = await productApi.get(id);
+        setSelectedProduct(res.product);
     };
-
-
-    // ====================== UI HIỂN THỊ =========================
 
     return (
         <div className="manage-product-page">
             <h1 className="title-page">Quản lý sản phẩm</h1>
             <hr />
 
-            {/* Nếu đang chọn 1 sản phẩm → hiện form edit */}
             {selectedProduct ? (
                 <EditProductForm
                     product={selectedProduct}
@@ -207,7 +159,6 @@ function ManageProduct() {
                 />
             ) : (
                 <>
-                    {/* Radio chọn chế độ */}
                     <div className="radio-input">
                         <label>
                             <input
@@ -234,7 +185,6 @@ function ManageProduct() {
                         <span className="selection"></span>
                     </div>
 
-                    {/* ================= LIST SẢN PHẨM ================= */}
                     {selected === "list" ? (
                         loading ? (
                             <LoadingSpinner />
@@ -261,18 +211,18 @@ function ManageProduct() {
                                 </div>
 
                                 <div className="products-grid">
-                                    {categories
+                                    {products
                                         .filter((cat) =>
                                             selectedCategory === "all"
                                                 ? true
                                                 : cat.category_id === Number(selectedCategory)
                                         )
-                                        .map((cat) => (
-                                            <div key={cat.category_id} className="category-block">
-                                                <h2 className="category-title">{cat.category_name}</h2>
+                                        .map((pro) => (
+                                            <div key={pro.category_id} className="category-block">
+                                                <h2 className="category-title">{pro.category_name}</h2>
 
                                                 <div className="category-products">
-                                                    {cat.products.map((p) => (
+                                                    {pro.products.map((p) => (
                                                         <ProductCard
                                                             key={p.id}
                                                             product={p}
@@ -286,13 +236,11 @@ function ManageProduct() {
                             </div>
                         )
                     ) : (
-                        /* ================= FORM THÊM SẢN PHẨM ================= */
                         <div className="add-product-section">
                             <h2>Thêm sản phẩm mới</h2>
 
                             <form className="product-form" onSubmit={handleSubmit}>
 
-                                {/* 5 TRƯỜNG BÊN TRÁI */}
                                 <div className="form-group"><label>Tên sản phẩm</label>
                                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
                                 </div>
@@ -318,7 +266,6 @@ function ManageProduct() {
                                     <input type="text" value={weight} onChange={(e) => setWeight(e.target.value)} />
                                 </div>
 
-                                {/* 5 TRƯỜNG BÊN PHẢI */}
                                 <div className="form-group"><label>Thương hiệu</label>
                                     <select value={brandId} onChange={(e) => setBrandId(e.target.value)}>
                                         <option value="">-- chọn brand --</option>
@@ -355,7 +302,6 @@ function ManageProduct() {
                                               onChange={(e) => setDescription(e.target.value)}></textarea>
                                 </div>
 
-                                {/* --- PHẦN CHỌN HASHTAG MỚI THÊM --- */}
                                 <div className="form-group full-width">
                                     <label>Hashtags (Chọn nhiều)</label>
                                     <div className="hashtag-selection-container">
@@ -376,7 +322,6 @@ function ManageProduct() {
                                     </div>
                                 </div>
 
-                                {/* Ảnh + nút submit */}
                                 <div className="full-width bottom-row">
                                     <div className="form-group image-upload">
                                         <label>Ảnh sản phẩm</label>

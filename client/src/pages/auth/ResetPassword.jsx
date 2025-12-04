@@ -3,8 +3,8 @@ import SuccessModal from "../../components/modals/SuccessModal";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import axios from "axios";
 import {OtpContext} from "../../contexts/OtpContext";
+import userApi from "../../api/userApi";
 
 
 function ResetPassword() {
@@ -15,7 +15,6 @@ function ResetPassword() {
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         if (!otpRequested?.resetToken) {
@@ -44,16 +43,8 @@ function ResetPassword() {
 
         setLoading(true);
         try {
-            await axios.post(
-                `${apiUrl}/users/reset-password`,
-                {new_password: newPassword, confirm_password: confirmPassword},
-                {
-                    headers: {
-                        Authorization: `Bearer ${otpRequested.resetToken}`
-                    }
-                }
-            );
-
+            const dataResetPass = {new_password: newPassword, confirm_password: confirmPassword};
+            await userApi.resetPassword(dataResetPass,otpRequested.resetToken);
             setShowModal(true);
         } catch (err) {
             console.error(err);

@@ -2,10 +2,9 @@ import '../../styles/admin/ManageCategory.css';
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ConfirmModal from "../../components/modals/ConfirmModal";
-import axios from "axios";
+import categoryApi from "../../api/categoryApi";
 
 function ManageCategory() {
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [selected, setSelected] = useState("list");
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
@@ -14,8 +13,6 @@ function ManageCategory() {
     const [showModal, setShowModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [categoryName, setCategoryName] = useState('');
-
-    const token = localStorage.getItem('access_token');
 
     const handleEdit = (category) => {
         setEditId(category.id);
@@ -29,11 +26,7 @@ function ManageCategory() {
 
     const handleSaveEdit = async (id) => {
         try {
-            await axios.put(`${apiUrl}/categories/update-category/${id}`, {name: editName}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await categoryApi.update(id, editName);
 
             // cập nhật lại danh sách sau khi sửa
             setCategories((prev) =>
@@ -53,21 +46,10 @@ function ManageCategory() {
     const handleConfirmDelete = async () => {
         setLoading(true);
         try {
-            const response = await axios.delete(`${apiUrl}/categories/delete-category/${deleteId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            if (response.status === 200) {
-                setCategories((prev) => prev.filter((item) => item.id !== deleteId));
-            }
+            await categoryApi.delete(deleteId);
+            setCategories((prev) => prev.filter((item) => item.id !== deleteId));
         } catch (error) {
-            if (error.response?.status === 400) {
-                alert("❌ Không thể xóa! Loại sản phẩm có sản phẩm liên quan.");
-            } else {
-                alert("⚠️ Lỗi: " + (error.response?.data?.message || error.message));
-            }
-
+            console.log(error);
         } finally {
             setLoading(false)
             setShowModal(false);
@@ -79,25 +61,13 @@ function ManageCategory() {
         setLoading(true);
         e.preventDefault();
         try {
-            const response = await axios.post(`${apiUrl}/categories/create-category`, {name: categoryName}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            if (response.status === 201) {
-                alert('Thêm loại sản phẩm thành công!');
-                setCategoryName('');
-                fetchCategories();
-            } else {
-                alert('❌ Lỗi khi thêm loại sản phẩm');
-            }
+            await categoryApi.create(categoryName);
+            alert('Thêm loại sản phẩm thành công!');
+            setCategoryName('');
+            fetchCategories();
+
         } catch (error) {
-            if (error.response?.status === 400) {
-                alert('Vui lòng nhập đầy đủ thông tin!');
-            }
-            else {
-                alert('Lỗi: ' + (error.response?.data?.message || error.message));
-            }
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -106,10 +76,10 @@ function ManageCategory() {
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${apiUrl}/categories/get-all-categories`);
-            setCategories(res.data.categories);
+            const res = await categoryApi.getAll();
+            setCategories(res.categories);
         } catch (error) {
-            alert("Lỗi khi tải danh loại sản phẩm:", error);
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -118,7 +88,7 @@ function ManageCategory() {
     useEffect(() => {
         fetchCategories();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [apiUrl]);
+    });
 
     return (
         <div className="manage-category-page">

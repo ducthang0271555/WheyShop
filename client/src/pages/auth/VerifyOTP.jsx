@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../../contexts/OtpContext";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
+import userApi from "../../api/userApi";
 import styled from "styled-components";
-import axios from "axios";
 
 const StyledWrapper = styled.div`
     display: flex;
@@ -51,7 +51,6 @@ function VerifyOTP() {
     const { otpRequested, setOtpRequested } = useContext(OtpContext);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         if (!otpRequested?.username) {
@@ -69,34 +68,31 @@ function VerifyOTP() {
     }, [countdown]);
 
     const handleChange = (e, index) => {
-        const value = e.target.value.replace(/\D/, ""); // chỉ lấy số
+        const value = e.target.value.replace(/\D/, "");
         if (!value) return;
 
         const newOtp = [...otp];
-        newOtp[index] = value; // ghi đè giá trị hiện tại
+        newOtp[index] = value;
         setOtp(newOtp);
 
-        // tự động nhảy sang ô tiếp theo
         if (index < inputRefs.current.length - 1) {
             inputRefs.current[index + 1].focus();
-            inputRefs.current[index + 1].select(); // optional: chọn nội dung ô tiếp
+            inputRefs.current[index + 1].select();
         }
     };
 
     const handleKeyDown = (e, index) => {
         if (e.key === "Backspace") {
-            e.preventDefault(); // tránh nhảy cursor mặc định
+            e.preventDefault();
 
             const newOtp = [...otp];
             if (newOtp[index] !== "") {
-                // nếu ô hiện tại có giá trị thì xóa nó
                 newOtp[index] = "";
                 setOtp(newOtp);
             } else if (index > 0) {
-                // nếu ô hiện tại trống, lùi về ô trước
                 inputRefs.current[index - 1].focus();
                 const prevOtp = [...otp];
-                prevOtp[index - 1] = ""; // xóa luôn ô trước khi lùi
+                prevOtp[index - 1] = "";
                 setOtp(prevOtp);
             }
         }
@@ -109,12 +105,10 @@ function VerifyOTP() {
         setError("");
 
         try {
-            const response = await axios.post(`${apiUrl}/users/verify-otp`, {
-                username: otpRequested.username,
-                otp: otpCode
-            });
+            const dataVerify = {username: otpRequested.username, otp: otpCode}
+            const response = await userApi.verifyOtp(dataVerify);
 
-            const { reset_token } = response.data;
+            const { reset_token } = response;
 
             setOtpRequested({ ...otpRequested, resetToken: reset_token });
 
@@ -128,13 +122,11 @@ function VerifyOTP() {
     };
 
     const handleResend = async () => {
-        if (countdown > 0) return; // disable nếu countdown chưa hết
+        if (countdown > 0) return;
 
         setLoading(true);
         try {
-            await axios.post(`${apiUrl}/users/resend-otp`, {
-                username: otpRequested.username
-            });
+            await userApi.resendOtp(otpRequested.username);
             setCountdown(60); // reset countdown
             setShowModal(true);
         } catch (err) {

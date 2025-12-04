@@ -6,7 +6,7 @@ import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import SuccessModal from "../../components/modals/SuccessModal";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import axios from "axios";
+import userApi from "../../api/userApi";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_.-]{3,30}$/;
 
@@ -18,7 +18,6 @@ function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const apiUrl = process.env.REACT_APP_API_URL;
 
     const validateUsername = (value) => {
         if (!value.trim()) return "Vui lòng nhập tên tài khoản";
@@ -67,9 +66,8 @@ function ForgotPassword() {
 
         setLoading(true);
         try {
-            await axios.post(`${apiUrl}/users/forgot-password`, {
-                username
-            });
+            await userApi.forgotPassword(username);
+
             setOtpRequested({
                 username: username,
                 resetToken: null

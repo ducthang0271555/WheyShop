@@ -2,10 +2,9 @@ import '../../styles/admin/ManageBrand.css';
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ConfirmModal from "../../components/modals/ConfirmModal";
-import axios from "axios";
+import brandApi from "../../api/brandApi";
 
 function ManageBrand() {
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [selected, setSelected] = useState("list");
     const [loading, setLoading] = useState(true);
     const [brands, setBrands] = useState([]);
@@ -14,8 +13,6 @@ function ManageBrand() {
     const [showModal, setShowModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [brandName, setBrandName] = useState('');
-
-    const token = localStorage.getItem('access_token');
 
     const handleEdit = (brand) => {
         setEditId(brand.id);
@@ -29,11 +26,7 @@ function ManageBrand() {
 
     const handleSaveEdit = async (id) => {
         try {
-            await axios.put(`${apiUrl}/brands/update-brand/${id}`, {name: editName}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await brandApi.update(id, editName);
             // cập nhật lại danh sách sau khi sửa
             setBrands((prev) =>
                 prev.map((c) => (c.id === id ? {...c, name: editName} : c))
@@ -52,21 +45,10 @@ function ManageBrand() {
     const handleConfirmDelete = async () => {
         setLoading(true);
         try {
-            const response = await axios.delete(`${apiUrl}/brands/delete-brand/${deleteId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            if (response.status === 200) {
-                setBrands((prev) => prev.filter((item) => item.id !== deleteId));
-            }
+            await brandApi.delete(deleteId);
+            setBrands((prev) => prev.filter((item) => item.id !== deleteId));
         } catch (error) {
-            if (error.response?.status === 400) {
-                alert("❌ Không thể xóa! Loại thương hiệu có sản phẩm liên quan.");
-            } else {
-                alert("⚠️ Lỗi: " + (error.response?.data?.message || error.message));
-            }
-
+            console.log(error);
         } finally {
             setLoading(false)
             setShowModal(false);
@@ -78,25 +60,12 @@ function ManageBrand() {
         setLoading(true);
         e.preventDefault();
         try {
-            const response = await axios.post(`${apiUrl}/brands/create-brand`, {name: brandName}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            if (response.status === 201) {
-                alert('Thêm thương hiệu mới thành công!');
-                setBrandName('');
-                fetchBrands();
-            } else {
-                alert('❌ Lỗi khi thêm thương hiệu mới!');
-            }
+            await brandApi.create(brandName);
+            alert('Thêm thương hiệu mới thành công!');
+            setBrandName('');
+            fetchBrands();
         } catch (error) {
-            if (error.response?.status === 400) {
-                alert('Vui lòng nhập đầy đủ thông tin!');
-            }
-            else {
-                alert('Lỗi: ' + (error.response?.data?.message || error.message));
-            }
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -105,8 +74,8 @@ function ManageBrand() {
     const fetchBrands = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${apiUrl}/brands/get-all-brands`);
-            setBrands(res.data.brands);
+            const res = await brandApi.getAll();
+            setBrands(res.brands);
         } catch (error) {
             alert("Lỗi khi tải danh sách thương hiệu:", error);
         } finally {
@@ -117,7 +86,7 @@ function ManageBrand() {
     useEffect(() => {
         fetchBrands();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [apiUrl]);
+    });
 
     return (
         <div className="manage-brand-page">

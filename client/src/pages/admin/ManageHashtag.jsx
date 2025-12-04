@@ -2,38 +2,34 @@ import "../../styles/admin/ManageHashtag.css";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ConfirmModal from "../../components/modals/ConfirmModal";
-import axios from "axios";
+import {objectToFormData} from "../../utils/formDataHelper";
+import hashtagApi from "../../api/hashtagApi";
+
 
 function ManageHashtag() {
     const apiUrl = process.env.REACT_APP_API_URL;
-    const token = localStorage.getItem("access_token");
 
-    // --- State Dữ liệu ---
     const [hashtags, setHashtags] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // --- State UI ---
-    const [selected, setSelected] = useState("list"); // 'list' hoặc 'form'
+    const [selected, setSelected] = useState("list");
     const [showModal, setShowModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
 
-    // --- State Form (Dùng chung cho Thêm & Sửa) ---
-    const [isEditing, setIsEditing] = useState(false); // True nếu đang sửa
-    const [editId, setEditId] = useState(null); // ID đang sửa
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [name, setName] = useState("");
     const [imageFile, setImageFile] = useState(null);
-    const [previewImage, setPreviewImage] = useState(null); // Để hiện ảnh cũ hoặc ảnh vừa chọn
+    const [previewImage, setPreviewImage] = useState(null);
 
     // ================== 1. FETCH DATA ==================
     const fetchHashtags = async () => {
         setLoading(true);
         try {
-            // Gọi API lấy danh sách (giả sử đường dẫn này, nếu khác bạn sửa lại nhé)
-            const res = await axios.get(`${apiUrl}/hash_tags/get-all-hash-tags`);
-            setHashtags(res.data.hash_tags || []);
+            const res = await hashtagApi.getAll();
+            setHashtags(res.hash_tags || []);
         } catch (error) {
             console.error("Lỗi lấy danh sách hashtag:", error);
-            alert("Không thể tải danh sách hashtag");
         } finally {
             setLoading(false);
         }
@@ -44,9 +40,6 @@ function ManageHashtag() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // ================== 2. HANDLERS UI ==================
-
-    // Chuyển sang chế độ Thêm mới (Reset form)
     const handleSwitchToAdd = () => {
         setSelected("form");
         setIsEditing(false);
@@ -56,34 +49,30 @@ function ManageHashtag() {
         setPreviewImage(null);
     };
 
-    // Chuyển sang chế độ Sửa (Điền dữ liệu cũ)
     const handleEditClick = (hashtag) => {
         setSelected("form");
         setIsEditing(true);
         setEditId(hashtag.id);
         setName(hashtag.name);
 
-        // Xử lý ảnh hiển thị
-        // Nếu ảnh lưu trong server dạng 'static/...', cần thêm apiUrl vào trước
-        // Nếu ảnh là link online thì giữ nguyên
+
         const imgUrl = hashtag.image_url
             ? (hashtag.image_url.startsWith('http') ? hashtag.image_url : `${apiUrl}/${hashtag.image_url}`)
             : null;
 
         setPreviewImage(imgUrl);
-        setImageFile(null); // Reset file upload
+        setImageFile(null);
     };
 
-    // Xử lý chọn file ảnh từ máy tính
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
-            setPreviewImage(URL.createObjectURL(file)); // Tạo link tạm để preview
+            setPreviewImage(URL.createObjectURL(file));
         }
     };
 
-    // ================== 3. SUBMIT FORM (ADD / UPDATE) ==================
+    // ================== 3.FORM (ADD / UPDATE) ==================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -92,43 +81,28 @@ function ManageHashtag() {
             return;
         }
 
-        const formData = new FormData();
-        formData.append("name", name);
-        if (imageFile) {
-            formData.append("image", imageFile);
-        }
+        const hashtagData = {
+            name: name
+        };
 
+        const formData = objectToFormData(hashtagData, imageFile);
+
+        setLoading(true);
         try {
-            setLoading(true);
             if (isEditing) {
-                // --- API UPDATE ---
-                await axios.put(`${apiUrl}/hash_tags/update-hash-tag/${editId}`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
-                alert("✅ Cập nhật Hashtag thành công!");
+                await hashtagApi.update(editId, formData);
+                alert("Cập nhật Hashtag thành công!");
             } else {
-                // --- API CREATE ---
-                await axios.post(`${apiUrl}/hash_tags/create-hash-tag`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
-                alert("✅ Thêm Hashtag thành công!");
+                await hashtagApi.create(formData);
+                alert("Thêm Hashtag thành công!");
             }
 
-            // Reset và quay về list
             fetchHashtags();
             setSelected("list");
             setName("");
             setImageFile(null);
-
         } catch (error) {
-            console.error("Lỗi submit:", error);
-            alert("❌ Có lỗi xảy ra: " + (error.response?.data?.error || error.message));
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -142,14 +116,10 @@ function ManageHashtag() {
 
     const handleConfirmDelete = async () => {
         try {
-            await axios.delete(`${apiUrl}/hash_tags/delete-hash-tag/${deleteId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            alert("✅ Đã xóa Hashtag!");
+            await hashtagApi.delete(deleteId);
             fetchHashtags();
         } catch (error) {
             console.error("Lỗi xóa:", error);
-            alert("❌ Không thể xóa Hashtag này!");
         } finally {
             setShowModal(false);
             setDeleteId(null);
@@ -157,18 +127,15 @@ function ManageHashtag() {
     };
 
     const handleCancelEdit = () => {
-            setIsEditing(false); // Tắt chế độ sửa -> Menu sẽ hiện lại
-            setSelected("list"); // Chuyển view về danh sách
+            setIsEditing(false);
+            setSelected("list");
 
-            // Reset sạch dữ liệu form
             setEditId(null);
             setName("");
             setImageFile(null);
             setPreviewImage(null);
         };
 
-
-    // ================== 5. RENDER ==================
     return (
         <div className="manage-hashtag-page">
             <h1 className="title-page">Quản lý Hashtag</h1>
@@ -237,8 +204,8 @@ function ManageHashtag() {
                                                 )}
                                             </td>
                                             <td style={{fontWeight: "bold"}}>{tag.name}</td>
-                                            <td> {/* Giữ nguyên td để nó tự căn giữa và full chiều cao */}
-                                                <div className="action-buttons"> {/* Bọc flex box vào trong div */}
+                                            <td>
+                                                <div className="action-buttons">
                                                     <button
                                                         className="edit-btn"
                                                         onClick={() => handleEditClick(tag)}
@@ -290,7 +257,6 @@ function ManageHashtag() {
                                     accept="image/*"
                                     onChange={handleFileChange}
                                 />
-                                {/* Preview Ảnh */}
                                 {previewImage && (
                                     <div className="image-preview" style={{marginTop: '10px'}}>
                                         <img
@@ -322,8 +288,7 @@ function ManageHashtag() {
                     </div>
                 )}
             </div>
-
-            {/* Modal Xác nhận xóa */}
+            
             {showModal && (
                 <ConfirmModal
                     title="Xác nhận xóa"

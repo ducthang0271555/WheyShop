@@ -2,7 +2,10 @@ import {useState, useEffect} from "react";
 import "../../styles/components/product/EditProductForm.css"
 import ConfirmModal from "../modals/ConfirmModal";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
-import axios from "axios";
+import categoryApi from "../../api/categoryApi";
+import brandApi from "../../api/brandApi";
+import hashtagApi from "../../api/hashtagApi";
+import flavorApi from "../../api/flavorApi";
 
 import ProductMainInfo from "./ProductMainInfo";
 import HashtagSection from "./HashtagSection";
@@ -11,12 +14,12 @@ import FlavorModal from "./FlavorModal";
 
 export default function EditProductForm({ product, onSave, onDelete, onCancel }) {
     const apiUrl = process.env.REACT_APP_API_URL;
-    const token = localStorage.getItem("access_token");
 
     const [editMode, setEditMode] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showDeleteProductModal, setShowDeleteProductModal] = useState(false);
     const [imageFile, setImageFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
 
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
@@ -47,6 +50,17 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
     });
 
     useEffect(() => {
+        if (product && product.img_url) {
+            const imgUrl = product.img_url.startsWith('http')
+                ? product.img_url
+                : `${apiUrl}/${product.img_url}`;
+            setPreviewImage(imgUrl);
+        } else {
+            setPreviewImage(null);
+        }
+    }, [product, apiUrl]);
+
+    useEffect(() => {
         if (product && product.hashtags && Array.isArray(product.hashtags)) {
             setSelectedHashtags(product.hashtags.map(tag => Number(tag.id)));
         } else {
@@ -59,13 +73,13 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
             setLoading(true);
             try {
                 const [catRes, brandRes, hashRes] = await Promise.all([
-                    axios.get(`${apiUrl}/categories/get-all-categories`),
-                    axios.get(`${apiUrl}/brands/get-all-brands`),
-                    axios.get(`${apiUrl}/hash_tags/get-all-hash-tags`)
+                    categoryApi.getAll(),
+                    brandApi.getAll(),
+                    hashtagApi.getAll()
                 ]);
-                setCategoriesList(catRes.data.categories);
-                setBrandsList(brandRes.data.brands);
-                setHashtagsList(hashRes.data.hash_tags || []);
+                setCategoriesList(catRes.categories);
+                setBrandsList(brandRes.brands);
+                setHashtagsList(hashRes.hash_tags || []);
             } catch (error) {
                 console.error("Lỗi tải dữ liệu form:", error);
             } finally {
@@ -73,7 +87,7 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
             }
         };
         fetchData();
-    }, [apiUrl]);
+    }, []);
 
     useEffect(() => {
         fetchFlavorData();
@@ -83,6 +97,15 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
     // --- HANDLERS: MAIN PRODUCT ---
     const handleChange = (field, value) => {
         setForm({ ...form, [field]: value });
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            // Tạo URL tạm thời để hiển thị ngay
+            setPreviewImage(URL.createObjectURL(file));
+        }
     };
 
     const toggleHashtag = (id) => {
@@ -100,8 +123,8 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
 
     const fetchFlavorData = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/product_flavors/get-flavors/${product.id}`);
-            setFlavorList(response.data);
+            const response = await flavorApi.getFlavorsByProduct(product.id);
+            setFlavorList(response);
         } catch (error) {
             console.error("Lỗi tải hương vị:", error);
         }
@@ -110,8 +133,8 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
     const handleOpenFlavorDetail = async (id) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiUrl}/product_flavors/get-flavor/${id}`);
-            setActiveFlavorModal({ isOpen: true, mode: "view", data: response.data });
+            const response = await flavorApi.getFlavor(id);
+            setActiveFlavorModal({ isOpen: true, mode: "view", data: response });
         } catch (error) {
             console.error(error);
         } finally {
@@ -123,16 +146,11 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         setLoading(true);
         try {
             const isAdd = !flavorId;
-            const url = isAdd
-                ? `${apiUrl}/product_flavors/create-flavor/${product.id}`
-                : `${apiUrl}/product_flavors/update-flavor/${flavorId}`;
-
-            const method = isAdd ? axios.post : axios.put;
-
-            await method(url, formData, {
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-            });
-
+            if (isAdd) {
+                await flavorApi.create(product.id, formData);
+            } else {
+                await flavorApi.update(flavorId, formData)
+            }
             alert(isAdd ? "Thêm hương vị thành công" : "Cập nhật hương vị thành công");
             fetchFlavorData();
             setActiveFlavorModal({ ...activeFlavorModal, isOpen: false });
@@ -147,9 +165,7 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
     const handleFlavorDelete = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`${apiUrl}/product_flavors/delete-flavor/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await flavorApi.delete(id);
             setActiveFlavorModal({ ...activeFlavorModal, isOpen: false });
             fetchFlavorData();
         } catch (error) {
@@ -157,6 +173,15 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCancelClick = () => {
+        setEditMode(false);
+        if (product.img_url) {
+            setPreviewImage(product.img_url.startsWith('http') ? product.img_url : `${apiUrl}/${product.img_url}`);
+        }
+        setImageFile(null);
+        if (product.hashtags) setSelectedHashtags(product.hashtags.map(tag => Number(tag.id)));
     };
 
     return (
@@ -171,9 +196,8 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
                     editMode={editMode}
                     categoriesList={categoriesList}
                     brandsList={brandsList}
-                    product={product}
-                    apiUrl={apiUrl}
-                    setImageFile={setImageFile}
+                    previewImage={previewImage}
+                    onImageChange={handleImageChange}
                 />
 
                 {/* 2. HASHTAGS */}
@@ -203,10 +227,7 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
                     ) : (
                         <>
                             <button type="button" className="save-btn" onClick={handleSaveClick}>Lưu</button>
-                            <button type="button" className="cancel-btn" onClick={() => {
-                                setEditMode(false);
-                                if (product.hashtags) setSelectedHashtags(product.hashtags.map(tag => Number(tag.id)));
-                            }}>Hủy</button>
+                            <button type="button" className="cancel-btn" onClick={handleCancelClick}>Hủy</button>
                         </>
                     )}
                 </div>
