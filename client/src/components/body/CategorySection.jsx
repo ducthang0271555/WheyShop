@@ -11,8 +11,8 @@ const CategorySection = ({ title, categoryId, bannerImg, bannerLink = "#" }) => 
     const fetchCategoryProducts = async () => {
         setIsLoading(true);
         try {
-            const response = await productApi.getTopProductSold(categoryId);
-            setProducts(response);
+            const response = await productApi.getProductByCategory(categoryId, {limit: 5, page: 1});
+            setProducts(response.products);
         } catch (error) {
             console.error("Error fetching category products:", error);
         } finally {

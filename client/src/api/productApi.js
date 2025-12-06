@@ -9,20 +9,16 @@ const productApi = {
         return axiosClient.get(`/products/get-product/${id}`);
     },
 
-    getTopProductSold: (categoryId) => {
-        return axiosClient.get(`/products/top-product-sold-by-category/${categoryId}`);
-    },
-
     getProductFlashSale: (params) => {
         return axiosClient.get('/products/flash-sale', {params});
     },
 
-    getProductByCategory: (id) => {
-        return axiosClient.get(`/products/products-by-category/${id}`);
+    getProductByCategory: (id, params) => {
+        return axiosClient.get(`/products/products-by-category/${id}`, {params});
     },
 
-    getProductByHashtag: (id) => {
-        return axiosClient.get(`/products/hashtag/${id}`);
+    getProductByHashtag: (id, params) => {
+        return axiosClient.get(`/products/hashtag/${id}`, {params});
     },
 
     getNewProduct: (params) => {

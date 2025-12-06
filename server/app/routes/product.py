@@ -1,3 +1,5 @@
+from itertools import product
+
 from flask import Blueprint, request, jsonify
 from app.models import Product, Category, HashTag
 from app.extensions import db
@@ -272,17 +274,31 @@ def delete_product(product_id):
 
 @product_bp.route('/flash-sale', methods=['GET'])
 def get_flash_sale_products():
-    limit = request.args.get('limit', type=int)
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    sort_by = request.args.get('sort', 'default')
+    cat_filter = request.args.get('category_filter', '')
 
     query = Product.query.filter(
         Product.discount_percent > 0,
         Product.is_active == 1
-    ).order_by(Product.discount_percent.desc())
+    )
 
-    if limit:
-        products = query.limit(limit).all()
+    if cat_filter:
+        cat_ids = [int(cid) for cid in cat_filter.split(',') if cid.isdigit()]
+        if cat_ids:
+            query = query.filter(Product.category_id.in_(cat_ids))
+
+    if sort_by == 'price_asc':
+        query = query.order_by(Product.price.asc())
+    elif sort_by == 'price_desc':
+        query = query.order_by(Product.price.desc())
     else:
-        products = query.all()
+        query = query.order_by(Product.sold_count.desc())
+
+    pagination = query.paginate(page=page, per_page=limit, error_out=False)
+    products = pagination.items
 
     result = []
     for p in products:
@@ -300,27 +316,16 @@ def get_flash_sale_products():
 
     return jsonify({
         'products': result,
-        'hashtag': 'Flash Sale Giá Sốc'
+        'hashtag': 'Flash Sale Giá Sốc',
+        'pagination': {
+            'total_items': pagination.total,
+            'total_pages': pagination.pages,
+            'current_page': page,
+            'per_page': limit,
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev
+        }
     }), 200
-
-@product_bp.route('/top-product-sold-by-category/<int:category_id>', methods=['GET'])
-def get_top_sold_by_category(category_id):
-    products = Product.query.filter_by(category_id=category_id, is_active=1) \
-        .order_by(Product.sold_count.desc()) \
-        .limit(5).all()
-
-    result = []
-    for p in products:
-        result.append({
-            "id": p.id,
-            "name": p.name,
-            "image": p.img_url,
-            "price": float(p.price),
-            "discount_percent": p.discount_percent,
-            "sold_count": p.sold_count
-        })
-
-    return jsonify(result)
 
 @product_bp.route('search', methods=['GET'])
 def search_products():
@@ -351,12 +356,43 @@ def search_products():
 
 @product_bp.route('/new-products', methods=['GET'])
 def get_new_products():
-    # Lấy sản phẩm có is_new = 1 và active = 1
-    # Sắp xếp theo ngày tạo mới nhất
-    products = Product.query.filter(
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+    sort_by = request.args.get('sort', 'default')
+    cat_filter = request.args.get('category_filter', '')
+
+    query = Product.query.filter(
         Product.is_new == 1,
         Product.is_active == 1
-    ).order_by(Product.created_at.desc()).all()
+    )
+
+    if cat_filter:
+        cat_ids = [int(cid) for cid in cat_filter.split(',') if cid.isdigit()]
+        if cat_ids:
+            query = query.filter(Product.category_id.in_(cat_ids))
+
+    if sort_by == 'price_asc':
+        query = query.order_by(Product.price.asc())
+    elif sort_by == 'price_desc':
+        query = query.order_by(Product.price.desc())
+    else:
+        query = query.order_by(Product.created_at.desc())
+
+    if limit:
+        pagination = query.paginate(page=page, per_page=limit, error_out=False)
+        products = pagination.items
+
+        pagination_meta = {
+            'total_items': pagination.total,
+            'total_pages': pagination.pages,
+            'current_page': page,
+            'per_page': limit,
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev
+        }
+    else:
+        products = query.all()
+        pagination_meta = None
 
     result = []
     for p in products:
@@ -374,24 +410,51 @@ def get_new_products():
 
     return jsonify({
         'products': result,
-        'hashtag': 'Sản phẩm mới về'
+        'hashtag': 'Sản phẩm mới về',
+        'pagination': pagination_meta
     }), 200
 
 
 @product_bp.route('/hashtag/<int:id>', methods=['GET'])
 def get_products_by_hashtag(id):
-    # 1. Tìm hashtag theo ID
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+    sort_by = request.args.get('sort', 'default')
+
     tag = HashTag.query.get(id)
 
     if not tag:
         return jsonify({'message': 'Hashtag not found', 'products': []}), 404
 
-    # 2. Lấy danh sách sản phẩm thuộc hashtag đó
-    # Dùng relationship .products đã khai báo trong Model
-    # Chỉ lấy sản phẩm active
-    products = tag.products.filter(Product.is_active == 1).all()
+    query = Product.query.filter(
+        Product.hashtags.any(id=id),
+        Product.is_active == 1
+    )
 
-    # 3. Serialize
+    if sort_by == 'price_asc':
+        query = query.order_by(Product.price.asc())
+    elif sort_by == 'price_desc':
+        query = query.order_by(Product.price.desc())
+    else:
+        query = query.order_by(Product.sold_count.desc())
+
+
+    if limit:
+        pagination = query.paginate(page=page, per_page=limit, error_out=False)
+        products = pagination.items
+
+        pagination_meta = {
+            'total_items': pagination.total,
+            'total_pages': pagination.pages,
+            'current_page': page,
+            'per_page': limit,
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev
+        }
+    else:
+        products = query.all()
+        pagination_meta = None
+
     result = []
     for p in products:
         result.append({
@@ -405,27 +468,60 @@ def get_products_by_hashtag(id):
             'is_new': p.is_new
         })
 
-    # 4. Trả về cả tên hashtag để React setPageTitle
     return jsonify({
-        'hashtag': tag.name,  # Ví dụ: "Whey Protein"
-        'products': result
+        'products': result,
+        'hashtag': tag.name,
+        'pagination': pagination_meta
     }), 200
 
 @product_bp.route('/products-by-category/<int:category_id>', methods=['GET'])
 def get_products_by_category(category_id):
-    products = Product.query.filter_by(category_id=category_id, is_active=1).order_by(Product.sold_count.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+    sort_by = request.args.get('sort', 'default')
+
+    query = Product.query.filter_by(
+        category_id=category_id,
+        is_active=1
+    )
+
+    if sort_by == 'price_asc':
+        query = query.order_by(Product.price.asc())
+    elif sort_by == 'price_desc':
+        query = query.order_by(Product.price.desc())
+    else:
+        query = query.order_by(Product.sold_count.desc())
+
+    if limit:
+        pagination = query.paginate(page=page, per_page=limit, error_out=False)
+        products = pagination.items
+
+        pagination_meta = {
+            'total_items': pagination.total,
+            'total_pages': pagination.pages,
+            'current_page': page,
+            'per_page': limit,
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev
+        }
+    else:
+        products = query.all()
+        pagination_meta = None
 
     result = []
     for p in products:
         result.append({
             'id': p.id,
             'name': p.name,
+            'image': p.img_url,
             'price': float(p.price),
             'discount_percent': p.discount_percent,
-            'rating': p.rating,
             'sold_count': p.sold_count,
-            'image': p.img_url,
+            'rating': p.rating,
             'is_new': p.is_new
         })
 
-    return jsonify(result), 200
+    return jsonify({
+        'products': result,
+        'pagination': pagination_meta
+    }), 200

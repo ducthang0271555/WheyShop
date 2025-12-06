@@ -4,17 +4,16 @@
     padding: 20px 10px;
 }
 
-/* --- Style cho 2 Banner --- */
 .listing-banners {
     display: flex;
-    gap: 15px; /* Khoảng cách giữa 2 banner */
+    gap: 15px;
     margin-bottom: 30px;
     margin-top: 20px;
 }
 
 .listing-banner-item {
-    flex: 1; /* Chia đều chiều rộng 50-50 */
-    height: 300px; /* Chiều cao cố định, tùy chỉnh theo ảnh của bạn */
+    flex: 1;
+    height: 300px;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -23,15 +22,14 @@
 .listing-banner-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Hoặc contain tùy thiết kế ảnh */
+    object-fit: cover;
     transition: transform 0.3s;
 }
 
 .listing-banner-item:hover img {
-    transform: scale(1.03); /* Zoom nhẹ khi hover */
+    transform: scale(1.03);
 }
 
-/* --- Style Tiêu đề & Grid Sản phẩm --- */
 .listing-title {
     font-size: 24px;
     font-weight: bold;
@@ -43,13 +41,11 @@
 
 .product-list-grid {
     display: grid;
-    /* Grid tự động chia cột, tối thiểu 220px mỗi cột */
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
 }
 
 
-/* --- FILTER BAR STYLES --- */
 .filter-bar {
     display: flex;
     flex-wrap: wrap;
@@ -75,7 +71,6 @@
     white-space: nowrap;
 }
 
-/* Category Chips (Giao diện thẻ bấm) */
 .category-chips {
     display: flex;
     flex-wrap: wrap;
@@ -96,7 +91,7 @@
 }
 
 .chip input {
-    display: none; /* Ẩn checkbox thật đi */
+    display: none;
 }
 
 .chip:hover {
@@ -104,14 +99,12 @@
     color: #d70018;
 }
 
-/* Khi được chọn */
 .chip.active {
     background-color: #d70018;
     color: white;
     border-color: #d70018;
 }
 
-/* Sort Select Box */
 .sort-select {
     padding: 8px 12px;
     border: 1px solid #ddd;
@@ -143,14 +136,56 @@
     }
 }
 
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    gap: 8px;
+}
+
+.pagination-btn,
+.pagination-number {
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: #333;
+}
+
+.pagination-btn:hover:not(:disabled),
+.pagination-number:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+}
+
+.pagination-number.active {
+    background-color: #d32f2f;
+    color: white;
+    border-color: #d32f2f;
+    font-weight: bold;
+}
+
+.pagination-btn:disabled {
+    background-color: #f9f9f9;
+    color: #ccc;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+
 /* Responsive cho Mobile */
 @media (max-width: 768px) {
     .listing-banners {
-        flex-direction: column; /* Xếp dọc trên điện thoại */
+        flex-direction: column;
         height: auto;
     }
 
     .listing-banner-item {
-        height: 150px; /* Chiều cao nhỏ hơn trên mobile */
+        height: 150px;
     }
 }
