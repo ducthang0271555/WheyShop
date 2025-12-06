@@ -8,7 +8,7 @@ import ProductCard from "./ProductCard";
 import banners, {getBannerKey} from "../config/bannerConfig";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import Footer from "../footer/Footer";
-import ContactButton from "../body/ContactButton";
+import ContactButton from "../common/ContactButton";
 import ProductFilters from "../common/ProductFilters";
 import Pagination from "../common/Pagination";
 import "../../styles/components/product/ProductListingPage.css";

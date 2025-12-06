@@ -5,7 +5,7 @@ import QuickNav from "../../components/body/QuickNav";
 import FlashSale from "../../components/body/FlashSale";
 import CategorySection from "../../components/body/CategorySection";
 import Footer from "../../components/footer/Footer";
-import ContactButton from "../../components/body/ContactButton";
+import ContactButton from "../../components/common/ContactButton";
 
 export default function HomePage() {
     return (
