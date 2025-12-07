@@ -8,6 +8,11 @@ product_hashtags = db.Table('product_hashtags',
     db.Column('hashtag_id', db.Integer, db.ForeignKey('hash_tags.id', ondelete=CASCADE), primary_key=True)
 )
 
+product_gifts = db.Table('product_gifts',
+    db.Column('product_id', db.Integer, db.ForeignKey('products.id', ondelete=CASCADE),primary_key=True),
+    db.Column('gift_id', db.Integer, db.ForeignKey('gifts.id', ondelete=CASCADE), primary_key=True)
+)
+
 class Product(db.Model):
     __tablename__ = 'products'
 
@@ -40,6 +45,8 @@ class Product(db.Model):
 
     hashtags = db.relationship('HashTag', secondary=product_hashtags,
                                backref=db.backref('products', lazy='dynamic'))
+    gifts = db.relationship('Gift', secondary=product_gifts,
+                            backref=db.backref('products', lazy='dynamic'))
 
     def __repr__(self):
         return f'<Product {self.name}>'
