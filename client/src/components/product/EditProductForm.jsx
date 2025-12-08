@@ -5,10 +5,12 @@ import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import categoryApi from "../../api/categoryApi";
 import brandApi from "../../api/brandApi";
 import hashtagApi from "../../api/hashtagApi";
+import giftApi from "../../api/giftApi";
 import flavorApi from "../../api/flavorApi";
 
 import ProductMainInfo from "./ProductMainInfo";
 import HashtagSection from "./HashtagSection";
+import GiftSection from "./GiftSection";
 import FlavorList from "./FlavorList";
 import FlavorModal from "./FlavorModal";
 
@@ -24,8 +26,10 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
     const [hashtagsList, setHashtagsList] = useState([]);
-
     const [selectedHashtags, setSelectedHashtags] = useState([]);
+    const [giftsList, setGiftsList] = useState([]);
+    const [selectedGifts, setSelectedGifts] = useState([]);
+
     const [form, setForm] = useState({
         name: product.name,
         price: product.price,
@@ -66,20 +70,28 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         } else {
             setSelectedHashtags([]);
         }
+
+        if (product && product.gifts && Array.isArray(product.gifts)) {
+            setSelectedGifts(product.gifts.map(gift => Number(gift.id)));
+        } else {
+            setSelectedGifts([]);
+        }
     }, [product]);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [catRes, brandRes, hashRes] = await Promise.all([
+                const [catRes, brandRes, hashRes, giftRes] = await Promise.all([
                     categoryApi.getAll(),
                     brandApi.getAll(),
-                    hashtagApi.getAll()
+                    hashtagApi.getAll(),
+                    giftApi.getAll()
                 ]);
                 setCategoriesList(catRes.categories);
                 setBrandsList(brandRes.brands);
                 setHashtagsList(hashRes.hash_tags || []);
+                setGiftsList(giftRes.gifts || [])
             } catch (error) {
                 console.error("Lỗi tải dữ liệu form:", error);
             } finally {
@@ -114,9 +126,18 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         setSelectedHashtags(prev => prev.includes(numId) ? prev.filter(itemId => itemId !== numId) : [...prev, numId]);
     };
 
+    const toggleGift = (id) => {
+        if (!editMode) return;
+        const numId = Number(id);
+        setSelectedGifts(prev =>
+            prev.includes(numId) ? prev.filter(itemId => itemId !== numId) : [...prev, numId]
+        );
+    };
+
     const handleSaveClick = () => {
         const dataToSave = { ...form };
         dataToSave.hash_tags = selectedHashtags;
+        dataToSave.gifts = selectedGifts
         onSave(product.id, dataToSave, imageFile);
         setEditMode(false);
     };
@@ -182,6 +203,8 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         }
         setImageFile(null);
         if (product.hashtags) setSelectedHashtags(product.hashtags.map(tag => Number(tag.id)));
+        if (product.gifts) setSelectedGifts(product.gifts.map(gift => Number(gift.id)));
+        else setSelectedGifts([]);
     };
 
     return (
@@ -205,6 +228,13 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
                     hashtagsList={hashtagsList}
                     selectedHashtags={selectedHashtags}
                     toggleHashtag={toggleHashtag}
+                    editMode={editMode}
+                />
+
+                <GiftSection
+                    giftsList={giftsList}
+                    selectedGifts={selectedGifts}
+                    toggleGift={toggleGift}
                     editMode={editMode}
                 />
 

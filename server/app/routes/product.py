@@ -1,45 +1,48 @@
-from itertools import product
-
 from flask import Blueprint, request, jsonify
-from app.models import Product, Category, HashTag
+from app.models import Product, Category, HashTag, Gift
 from app.extensions import db
 from app.routes.decorator import admin_required
+from app.utils.image_utils import save_image, delete_image_if_unused
 
 product_bp = Blueprint('products', __name__)
+
+
+def get_objects_by_ids(model_class, id_list):
+    if not id_list:
+        return []
+
+    valid_ids = set()
+    for item_id in id_list:
+        if item_id and str(item_id).strip():
+            try:
+                valid_ids.add(int(item_id))
+            except ValueError:
+                continue
+
+    if not valid_ids:
+        return []
+
+    return db.session.query(model_class).filter(model_class.id.in_(valid_ids)).all()
 
 @product_bp.route('/create-product', methods=['POST'])
 @admin_required
 def create_product():
     sku = request.form.get('sku')
-    category_id = request.form.get('category_id')
     name = request.form.get('name')
-    brand_id = request.form.get('brand_id')
     description = request.form.get('description')
+    origin = request.form.get('origin')
+    weight = request.form.get('weight')
+
+    category_id = request.form.get('category_id')
+    brand_id = request.form.get('brand_id')
+
     price = request.form.get('price')
     stock = request.form.get('stock')
-    weight = request.form.get('weight')
-    origin = request.form.get('origin')
     discount_percent = request.form.get('discount_percent', 0)
     is_new = request.form.get('is_new', 0)
     hash_tags_ids = request.form.getlist('hash_tags')
 
     img_file = request.files.get('image')
-    img_url = None
-
-    if img_file:
-        import os
-        from werkzeug.utils import secure_filename
-
-        UPLOAD_FOLDER = "static/images/product_image/"
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-        filename = secure_filename(img_file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-
-        if not os.path.exists(file_path):
-            img_file.save(file_path)
-
-        img_url = f"{UPLOAD_FOLDER}{filename}"
 
     if not all([category_id, sku, stock, weight, origin, name, brand_id, price, discount_percent]):
         return jsonify({"message": "Missing required fields"}), 400
@@ -47,13 +50,20 @@ def create_product():
     if Product.query.filter_by(sku=sku).first():
         return jsonify({"message": "SKU already exists"}), 400
 
-    # Convert dữ liệu
+    try:
+        stock = int(stock)
+        price = float(price)
+        discount_percent = float(discount_percent)
+        if price < 0 or stock < 0 or discount_percent < 0:
+            return jsonify({"error": "Price and stock and discount percent must be non-negative"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid price or stock or discount percent format"}), 400
+
     category_id = int(category_id)
-    stock = int(stock)
     brand_id = int(brand_id)
     is_new = int(is_new)
-    price = float(price)
-    discount_percent = float(discount_percent)
+
+    img_url = save_image(img_file, "product_image")
 
     new_product = Product(
         sku=sku,
@@ -118,7 +128,8 @@ def get_product(product_id):
                     'weight': product.weight, 'origin': product.origin, 'rating': product.rating,
                     'sold_count': product.sold_count, 'is_active': product.is_active,
                     'is_best_seller': product.is_best_seller, 'img_url': product.img_url,
-                    'is_new': product.is_new, 'hashtags': [{'id': tag.id, 'name': tag.name} for tag in product.hashtags]}
+                    'is_new': product.is_new, 'hashtags': [{'id': tag.id, 'name': tag.name} for tag in product.hashtags],
+                    'gifts': [{'id': gift.id, 'name': gift.name} for gift in product.gifts]}
 
     return jsonify({'product': product_data}), 200
 
@@ -148,6 +159,8 @@ def update_product(product_id):
     is_best_seller = data.get('is_best_seller')
     is_new = data.get('is_new', 0)
     hash_tags_ids = request.form.getlist('hash_tags')  # Lấy danh sách ['1', '3']
+    gift_ids = request.form.getlist('gifts')
+
 
     required = [
         sku, category_id, name, price, stock,
@@ -218,21 +231,9 @@ def update_product(product_id):
     product.weight = weight
     product.origin = origin
     product.img_url = new_img_url
-    product.hashtags = []
 
-    if hash_tags_ids:
-        for tag_id in hash_tags_ids:
-            if not tag_id or str(tag_id).strip() == "":
-                continue
-
-            try:
-                t_id = int(tag_id)
-
-                tag = HashTag.query.get(t_id)
-                if tag:
-                    product.hashtags.append(tag)
-            except ValueError:
-                continue
+    product.hashtags = get_objects_by_ids(HashTag, hash_tags_ids)
+    product.gifts = get_objects_by_ids(Gift, gift_ids)
 
     db.session.commit()
 

@@ -12,6 +12,7 @@ import ManageCategory from "../pages/admin/ManageCategory";
 import ManagerBrand from "../pages/admin/ManageBrand";
 import ManageProduct from "../pages/admin/ManageProduct";
 import ManageHashtag from "../pages/admin/ManageHashtag";
+import ManageGift from "../pages/admin/ManageGift";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductListingPage from "../components/product/ProductListingPage";
 
@@ -80,7 +81,11 @@ const routes = [
             {
                 path: "manage-hashtag",
                 element: <ManageHashtag/>
-            }
+            },
+            {
+                path: "manage-gift",
+                element: <ManageGift/>
+            },
         ],
     },
     {

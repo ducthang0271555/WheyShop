@@ -1,43 +1,37 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
-from app.models import ProductFlavor
+from app.models import ProductFlavor, Product
 from app.routes.decorator import admin_required
+from app.utils.image_utils import save_image, delete_image_if_unused
 
 product_flavor_bp = Blueprint('product_flavors', __name__)
 
 @product_flavor_bp.route('/create-flavor/<int:product_id>', methods=['POST'])
 @admin_required
 def create_flavor(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
     data = request.form
-    product_id = product_id
     flavor_name = data.get('name')
     price = data.get('price')
     stock = data.get('stock')
 
     img_file = request.files.get('image')
-    img_url = None
 
     if not all([flavor_name, price, stock, product_id]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    if img_file:
-        import os
-        from werkzeug.utils import secure_filename
+    try:
+        price = float(price)
+        stock = int(stock)
+        if price < 0 or stock < 0:
+            return jsonify({"error": "Price and stock must be non-negative"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid price or stock format"}), 400
 
-        UPLOAD_FOLDER = "static/images/product_flavor_image/"
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-        filename = secure_filename(img_file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-
-        if not os.path.exists(file_path):
-            img_file.save(file_path)
-
-        img_url = f"{UPLOAD_FOLDER}{filename}"
-
-    product_id = int(product_id)
-    price = float(price)
-    stock = int(stock)
+    img_url = save_image(img_file, "product_flavor_image")
 
     new_flavor = ProductFlavor(product_id=product_id, flavor_name=flavor_name, price=price, stock=stock, image_url=img_url)
 
@@ -87,47 +81,33 @@ def update_flavor(flavor_id):
 
     data = request.form
     flavor_name = data.get('name')
-    price = float(data.get('price'))
-    stock = int(data.get('stock'))
+    price_str = data.get('price')
+    stock_str = data.get('stock')
 
-    img_file = request.files.get('image')
-
-    upload_folder = "static/images/product_flavor_image/"
-    new_img_url = flavor.image_url
-    old_img_url = flavor.image_url
-
-    if not all([flavor_name, price, stock]):
+    if not flavor_name or price_str is None or stock_str is None:
         return jsonify({"error": "Missing required fields"}), 400
 
+    try:
+        price = float(price_str)
+        stock = int(stock_str)
+        if price < 0 or stock < 0:
+            return jsonify({"error": "Price and stock must be non-negative"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid Price or stock format"}), 400
+
+    img_file = request.files.get('image')
+    old_img_url = flavor.image_url
+
     if img_file:
-        import os
-        from werkzeug.utils import secure_filename
-
-        filename = secure_filename(img_file.filename)
-        new_path = os.path.join(upload_folder, filename)
-
-        if not os.path.exists(new_path):
-            img_file.save(new_path)
-
-        new_img_url = f"{upload_folder}{filename}"
+        new_img_url = save_image(img_file, "product_flavor_image")
+        flavor.image_url = new_img_url
 
         if old_img_url and old_img_url != new_img_url:
-            used_by_other = ProductFlavor.query.filter(
-                ProductFlavor.image_url == old_img_url,
-                ProductFlavor.id != flavor.id
-            ).first()
-
-            if not used_by_other:
-                if os.path.exists(old_img_url):
-                    try:
-                        os.remove(old_img_url)
-                    except:
-                        pass
+            delete_image_if_unused(old_img_url, ProductFlavor, exclude_id=flavor_id)
 
     flavor.flavor_name = flavor_name
     flavor.price = price
     flavor.stock = stock
-    flavor.image_url = new_img_url
 
     db.session.commit()
 
@@ -144,19 +124,9 @@ def delete_flavor(flavor_id):
     img_url = flavor.image_url
 
     db.session.delete(flavor)
+    db.session.commit()
 
     if img_url:
-        used_by_other = ProductFlavor.query.filter(ProductFlavor.image_url == img_url).first()
-
-        if not used_by_other:
-            import os
-            file_path = img_url
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                except:
-                    pass
-
-    db.session.commit()
+        delete_image_if_unused(img_url, ProductFlavor)
 
     return jsonify({"message": "Deleted flavor successfully"}), 200

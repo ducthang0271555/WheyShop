@@ -21,4 +21,5 @@ __all__ = [
     "ProductFlavor",
     "PasswordOTP",
     "HashTag",
+    "Gift",
 ]

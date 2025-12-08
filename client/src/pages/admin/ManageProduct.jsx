@@ -8,6 +8,7 @@ import productApi from "../../api/productApi";
 import categoryApi from "../../api/categoryApi";
 import brandApi from "../../api/brandApi";
 import hashtagApi from "../../api/hashtagApi";
+import ViewToggle from "../../components/common/ViewToggle";
 
 function ManageProduct() {
 
@@ -159,31 +160,12 @@ function ManageProduct() {
                 />
             ) : (
                 <>
-                    <div className="radio-input">
-                        <label>
-                            <input
-                                type="radio"
-                                name="mode"
-                                value="list"
-                                checked={selected === "list"}
-                                onChange={() => setSelected("list")}
-                            />
-                            <span>List sản phẩm</span>
-                        </label>
-
-                        <label>
-                            <input
-                                type="radio"
-                                name="mode"
-                                value="add"
-                                checked={selected === "add"}
-                                onChange={() => setSelected("add")}
-                            />
-                            <span>Thêm sản phẩm</span>
-                        </label>
-
-                        <span className="selection"></span>
-                    </div>
+                    <ViewToggle
+                        resourceName="Sản phẩm"
+                        viewMode={selected === "add" ? "form" : "list"}
+                        onSwitchToList={() => setSelected("list")}
+                        onSwitchToAdd={() => setSelected("add")}
+                    />
 
                     {selected === "list" ? (
                         loading ? (

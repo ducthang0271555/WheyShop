@@ -33,6 +33,7 @@ function AdminHeader() {
                             <li><a href="/admin/manage-brand">Quản lý thương hiệu</a></li>
                             <li><a href="/admin/manage-hashtag">Quản lý Hashtag</a></li>
                             <li><a href="/admin/manage-product">Quản lý sản phẩm</a></li>
+                            <li><a href="/admin/manage-gift">Quản lý quà tặng</a></li>
 
                         </ul>
                     </div>
