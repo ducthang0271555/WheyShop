@@ -33,35 +33,39 @@ def create_product():
     origin = request.form.get('origin')
     weight = request.form.get('weight')
 
-    category_id = request.form.get('category_id')
-    brand_id = request.form.get('brand_id')
+    cat_id_str = request.form.get('category_id')
+    brand_id_str = request.form.get('brand_id')
+    price_str = request.form.get('price')
+    stock_str = request.form.get('stock')
 
-    price = request.form.get('price')
-    stock = request.form.get('stock')
-    discount_percent = request.form.get('discount_percent', 0)
-    is_new = request.form.get('is_new', 0)
+    discount_str = request.form.get('discount_percent', '0')
+    is_new_str = request.form.get('is_new', '0')
+
     hash_tags_ids = request.form.getlist('hash_tags')
+    gift_ids = request.form.getlist('gifts')
 
     img_file = request.files.get('image')
 
-    if not all([category_id, sku, stock, weight, origin, name, brand_id, price, discount_percent]):
+    required_fields = [sku, name, origin, weight, cat_id_str, brand_id_str, price_str, stock_str]
+    if any(f is None or str(f).strip() == "" for f in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
 
     if Product.query.filter_by(sku=sku).first():
         return jsonify({"message": "SKU already exists"}), 400
 
     try:
-        stock = int(stock)
-        price = float(price)
-        discount_percent = float(discount_percent)
-        if price < 0 or stock < 0 or discount_percent < 0:
-            return jsonify({"error": "Price and stock and discount percent must be non-negative"}), 400
-    except ValueError:
-        return jsonify({"error": "Invalid price or stock or discount percent format"}), 400
+        category_id = int(cat_id_str)
+        brand_id = int(brand_id_str)
+        stock = int(stock_str)
+        is_new = int(is_new_str)
 
-    category_id = int(category_id)
-    brand_id = int(brand_id)
-    is_new = int(is_new)
+        price = float(price_str)
+        discount_percent = float(discount_str)
+
+        if price < 0 or stock < 0 or discount_percent < 0:
+            return jsonify({"error": "Price, stock, and discount must be non-negative"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid format for numeric fields"}), 400
 
     img_url = save_image(img_file, "product_image")
 
@@ -81,10 +85,10 @@ def create_product():
     )
 
     if hash_tags_ids:
-        for tag_id in hash_tags_ids:
-            tag = HashTag.query.get(int(tag_id))
-            if tag:
-                new_product.hashtags.append(tag)
+        new_product.hashtags = get_objects_by_ids(HashTag, hash_tags_ids)
+
+    if gift_ids:
+        new_product.gifts = get_objects_by_ids(Gift, gift_ids)
 
     db.session.add(new_product)
     db.session.commit()
@@ -143,33 +147,30 @@ def update_product(product_id):
         return jsonify({'error': 'Product not found'}), 404
 
     data = request.form
-    img_file = request.files.get('image')
 
     sku = data.get('sku')
-    category_id = data.get('category_id')
     name = data.get('name')
-    description = data.get('description')
-    price = data.get('price')
-    stock = data.get('stock')
-    brand_id = data.get('brand_id')
-    discount_percent = data.get('discount_percent')
-    weight = data.get('weight')
     origin = data.get('origin')
-    is_active = data.get('is_active')
-    is_best_seller = data.get('is_best_seller')
-    is_new = data.get('is_new', 0)
-    hash_tags_ids = request.form.getlist('hash_tags')  # Lấy danh sách ['1', '3']
+    weight = data.get('weight')
+    description = data.get('description')
+
+    category_id_str = data.get('category_id')
+    brand_id_str = data.get('brand_id')
+    price_str = data.get('price')
+    stock_str = data.get('stock')
+
+    discount_str = data.get('discount_percent', '0')
+    is_active_str = data.get('is_active', '1')
+    is_best_seller_str = data.get('is_best_seller', '0')
+    is_new_str = data.get('is_new', '0')
+
+    hash_tags_ids = request.form.getlist('hash_tags')
     gift_ids = request.form.getlist('gifts')
 
+    img_file = request.files.get('image')
 
-    required = [
-        sku, category_id, name, price, stock,
-        brand_id, discount_percent, weight,
-        origin, is_active, is_best_seller
-    ]
-
-    if any(x is None or x == "" for x in required):
-        return jsonify({'error': 'Missing required field'}), 400
+    if not all([sku, name, origin, weight, category_id_str, brand_id_str, price_str, stock_str]):
+        return jsonify({'error': 'Missing required fields'}), 400
 
     # SKU conflict logic
     existing_sku = Product.query.filter(
@@ -180,45 +181,29 @@ def update_product(product_id):
     if existing_sku:
         return jsonify({'error': 'SKU already exists'}), 400
 
-    # Convert types
-    category_id = int(category_id)
-    stock = int(stock)
-    brand_id = int(brand_id)
-    discount_percent = float(discount_percent)
-    price = float(price)
-    product.is_active = int(is_active)
-    product.is_best_seller = int(is_best_seller)
-    product.is_new = int(is_new)  # <--- Cập nhật is_new
-    upload_folder = "static/images/product_image/"
-    new_img_url = product.img_url
-    old_img_url = product.img_url
+    try:
+        category_id = int(category_id_str)
+        brand_id = int(brand_id_str)
+        stock = int(stock_str)
+        is_active = int(is_active_str)
+        is_best_seller = int(is_best_seller_str)
+        is_new = int(is_new_str)
+
+        price = float(price_str)
+        discount_percent = float(discount_str)
+
+        if price < 0 or stock < 0 or discount_percent < 0:
+            return jsonify({"error": "Price, stock, and discount must be non-negative"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid format for numeric fields"}), 400
 
     if img_file:
-        import os
-        from werkzeug.utils import secure_filename
-
-        os.makedirs(upload_folder, exist_ok=True)
-
-        filename = secure_filename(img_file.filename)
-        new_path = os.path.join(upload_folder, filename)
-
-        if not os.path.exists(new_path):
-            img_file.save(new_path)
-
-        new_img_url = f"{upload_folder}{filename}"
-
+        new_img_url = save_image(img_file, "product_image")
+        old_img_url = product.img_url
         if old_img_url and old_img_url != new_img_url:
-            used_by_other = Product.query.filter(
-                Product.img_url == old_img_url,
-                Product.id != product_id
-            ).first()
+            delete_image_if_unused(old_img_url, Product, exclude_id=product_id)
 
-            if not used_by_other:
-                if os.path.exists(old_img_url):
-                    try:
-                        os.remove(old_img_url)
-                    except:
-                        pass
+        product.img_url = new_img_url
 
     product.sku = sku
     product.category_id = category_id
@@ -230,7 +215,9 @@ def update_product(product_id):
     product.discount_percent = discount_percent
     product.weight = weight
     product.origin = origin
-    product.img_url = new_img_url
+    product.is_active = is_active
+    product.is_best_seller = is_best_seller
+    product.is_new = is_new
 
     product.hashtags = get_objects_by_ids(HashTag, hash_tags_ids)
     product.gifts = get_objects_by_ids(Gift, gift_ids)
@@ -253,23 +240,10 @@ def delete_product(product_id):
     img_url = product.img_url
 
     db.session.delete(product)
+    db.session.commit()
 
     if img_url:
-        used_by_other = Product.query.filter(
-            Product.img_url == img_url
-        ).first()
-
-        # Không ai dùng → xóa file
-        if not used_by_other:
-            import os
-            file_path = img_url
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                except:
-                    pass
-
-    db.session.commit()
+        delete_image_if_unused(img_url, Product)
 
     return jsonify({'message': 'Product deleted successfully'}), 200
 

@@ -9,10 +9,9 @@ import giftApi from "../../api/giftApi";
 import flavorApi from "../../api/flavorApi";
 
 import ProductMainInfo from "./ProductMainInfo";
-import HashtagSection from "./HashtagSection";
-import GiftSection from "./GiftSection";
 import FlavorList from "./FlavorList";
 import FlavorModal from "./FlavorModal";
+import SelectionSection from "./SelectionSection";
 
 export default function EditProductForm({ product, onSave, onDelete, onCancel }) {
     const apiUrl = process.env.REACT_APP_API_URL;
@@ -106,7 +105,6 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [product.id]);
 
-    // --- HANDLERS: MAIN PRODUCT ---
     const handleChange = (field, value) => {
         setForm({ ...form, [field]: value });
     };
@@ -223,19 +221,22 @@ export default function EditProductForm({ product, onSave, onDelete, onCancel })
                     onImageChange={handleImageChange}
                 />
 
-                {/* 2. HASHTAGS */}
-                <HashtagSection
-                    hashtagsList={hashtagsList}
-                    selectedHashtags={selectedHashtags}
-                    toggleHashtag={toggleHashtag}
+                <SelectionSection
+                    label="Hashtags"
+                    items={hashtagsList}
+                    selectedIds={selectedHashtags}
+                    onToggle={toggleHashtag}
                     editMode={editMode}
+                    placeholder="Chưa có hashtag nào."
                 />
 
-                <GiftSection
-                    giftsList={giftsList}
-                    selectedGifts={selectedGifts}
-                    toggleGift={toggleGift}
+                <SelectionSection
+                    label="Quà tặng kèm"
+                    items={giftsList}
+                    selectedIds={selectedGifts}
+                    onToggle={toggleGift}
                     editMode={editMode}
+                    placeholder="Chưa có quà tặng nào."
                 />
 
                 <FlavorList

@@ -4,11 +4,14 @@ import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ProductCard from "../../components/product/ProductCard";
 import EditProductForm from "../../components/product/EditProductForm";
 import {objectToFormData} from "../../utils/formDataHelper";
+import SelectionSection from "../../components/product/SelectionSection";
+import ViewToggle from "../../components/common/ViewToggle";
 import productApi from "../../api/productApi";
 import categoryApi from "../../api/categoryApi";
 import brandApi from "../../api/brandApi";
 import hashtagApi from "../../api/hashtagApi";
-import ViewToggle from "../../components/common/ViewToggle";
+import giftApi from "../../api/giftApi";
+
 
 function ManageProduct() {
 
@@ -16,6 +19,7 @@ function ManageProduct() {
     const [categoriesList, setCategoriesList] = useState([]);
     const [brandsList, setBrandsList] = useState([]);
     const [hashtagsList, setHashtagsList] = useState([]);
+    const [giftsList, setGiftsList] = useState([]);
 
     const [selected, setSelected] = useState("list");
     const [selectedCategory, setSelectedCategory] = useState("all");
@@ -36,6 +40,7 @@ function ManageProduct() {
     const [isNew, setIsNew] = useState(0);
 
     const [selectedHashtags, setSelectedHashtags] = useState([]);
+    const [selectedGifts, setSelectedGifts] = useState([]);
 
     // ====================== FETCH DATA =========================
 
@@ -58,13 +63,21 @@ function ManageProduct() {
 
     useEffect(() => {
         const fetchLists = async () => {
-            const resCat = await categoryApi.getAll();
-            const resBrand = await brandApi.getAll();
-            const resHash = await hashtagApi.getAll();
+            try {
+                const [resCat, resBrand, resHash, resGift] = await Promise.all([
+                    categoryApi.getAll(),
+                    brandApi.getAll(),
+                    hashtagApi.getAll(),
+                    giftApi.getAll()
+                ]);
 
-            setCategoriesList(resCat.categories);
-            setBrandsList(resBrand.brands);
-            setHashtagsList(resHash.hash_tags || []);
+                setCategoriesList(resCat.categories);
+                setBrandsList(resBrand.brands);
+                setHashtagsList(resHash.hash_tags || []);
+                setGiftsList(resGift.gifts || []); // Lưu vào state
+            } catch (error) {
+                console.error("Lỗi tải danh sách:", error);
+            }
         };
         fetchLists();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,6 +92,13 @@ function ManageProduct() {
                 }
             });
         };
+
+    const toggleGift = (id) => {
+        setSelectedGifts(prev =>
+            prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
+        );
+    };
+
     //=================== CREATE =================
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -88,7 +108,8 @@ function ManageProduct() {
             category_id: categoryId,
             price, discount_percent: discountPercent,
             stock, weight, origin, description,
-            is_new: isNew, hash_tags: selectedHashtags
+            is_new: isNew, hash_tags: selectedHashtags,
+            gifts: selectedGifts
         };
 
         const formData = objectToFormData(productData, imageFile);
@@ -104,7 +125,7 @@ function ManageProduct() {
             setPrice(""); setDiscountPercent(0); setStock(0);
             setWeight(""); setOrigin(""); setDescription("");
             setImageFile(null); setSelectedHashtags([]);
-            setIsNew(0);
+            setSelectedGifts([]); setIsNew(0);
 
             fetchData();
         } catch (err) {
@@ -284,25 +305,23 @@ function ManageProduct() {
                                               onChange={(e) => setDescription(e.target.value)}></textarea>
                                 </div>
 
-                                <div className="form-group full-width">
-                                    <label>Hashtags (Chọn nhiều)</label>
-                                    <div className="hashtag-selection-container">
-                                        {hashtagsList.length > 0 ? (
-                                            hashtagsList.map((tag) => (
-                                                <div
-                                                    key={tag.id}
-                                                    className={`hashtag-badge ${selectedHashtags.includes(tag.id) ? 'active' : ''}`}
-                                                    onClick={() => toggleHashtag(tag.id)}
-                                                >
-                                                    {tag.name}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p style={{fontSize: "14px", color: "#666"}}>Chưa có hashtag nào trong hệ
-                                                thống.</p>
-                                        )}
-                                    </div>
-                                </div>
+                                <SelectionSection
+                                    label="Hashtags"
+                                    items={hashtagsList}
+                                    selectedIds={selectedHashtags}
+                                    onToggle={toggleHashtag}
+                                    editMode={true}
+                                    placeholder="Chưa có hashtag nào."
+                                />
+
+                                <SelectionSection
+                                    label="Quà tặng kèm"
+                                    items={giftsList}
+                                    selectedIds={selectedGifts}
+                                    onToggle={toggleGift}
+                                    editMode={true}
+                                    placeholder="Chưa có quà tặng nào."
+                                />
 
                                 <div className="full-width bottom-row">
                                     <div className="form-group image-upload">

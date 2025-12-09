@@ -1,6 +1,8 @@
 import os
 from werkzeug.utils import secure_filename
 
+from app.models import Product
+
 
 def save_image(img_file, folder_name):
     if not img_file:
@@ -22,7 +24,10 @@ def delete_image_if_unused(img_url, model_class, exclude_id=None):
     if not img_url:
         return
 
-    query = model_class.query.filter(model_class.image_url == img_url)
+    if model_class is Product:
+        query = model_class.query.filter(model_class.img_url == img_url)
+    else:
+        query = model_class.query.filter(model_class.image_url == img_url)
 
     if exclude_id:
         query = query.filter(model_class.id != exclude_id)
