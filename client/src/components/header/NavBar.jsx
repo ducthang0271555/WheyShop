@@ -12,11 +12,25 @@ export default function NavBar() {
     const [openMenu, setOpenMenu] = useState(false);
     const menuRef = useRef(null);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
 
     useEffect(() => {
         const token = localStorage.getItem("access_token");
         setLoggedIn(!!token);
     }, []);
+    useEffect(() => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCartCount(cart.length);
+}, []);
+    useEffect(() => {
+    const handleStorage = () => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartCount(cart.length);
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+}, []);
 
     useEffect(() => {
         const handler = (e) => {
@@ -65,9 +79,14 @@ export default function NavBar() {
                     </div>
                 </div>
 
-                <button className="cart">
-                    <ShoppingCart size={22}/>
+                <button className="cart" onClick={() => navigate('/cart')}>
+                    <ShoppingCart size={22} />
+
                     <span>Giỏ hàng</span>
+
+                    {cartCount > 0 && (
+                        <span className="cart-badge">{cartCount}</span>
+                    )}
                 </button>
 
                 <div className="user-menu-wrapper" ref={menuRef}>

@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import ProductCard from "../product/ProductCard";
 import productApi from "../../api/productApi";
-
+import { useNavigate } from "react-router-dom";
 const CategorySection = ({ title, categoryId, bannerImg, bannerLink = "#" }) => {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     const fetchCategoryProducts = async () => {
         setIsLoading(true);
@@ -53,7 +54,7 @@ const CategorySection = ({ title, categoryId, bannerImg, bannerLink = "#" }) => 
                     <div key={product.id} className="cat-product-item">
                         <ProductCard
                             product={product}
-                            onClick={() => console.log("Click", product.id)}
+                            // onClick={() => console.log("Clicked product:", product.description)}
                         />
                     </div>
                 ))}

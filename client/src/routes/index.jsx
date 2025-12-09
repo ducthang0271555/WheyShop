@@ -15,6 +15,7 @@ import ManageHashtag from "../pages/admin/ManageHashtag";
 import ManageGift from "../pages/admin/ManageGift";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductListingPage from "../components/product/ProductListingPage";
+import ProductDetails from "../components/product/ProductDetails";
 
 const routes = [
     {
@@ -103,6 +104,10 @@ const routes = [
     {
         path: "/listing/:type/:id",
         element: <ProductListingPage/>
+    },
+    {
+        path: "product/:id",
+        element: <ProductDetails/>
     }
 ];
 

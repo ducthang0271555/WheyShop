@@ -1,5 +1,5 @@
 import "../../styles/components/product/ProductCard.css";
-
+import { Link } from "react-router-dom";
 export default function ProductCard({ product, onClick }) {
     const apiUrl = process.env.REACT_APP_API_URL;
     const {
@@ -13,7 +13,8 @@ export default function ProductCard({ product, onClick }) {
     const discountedPrice = price - (price * discount_percent) / 100;
 
     return (
-        <div className="admin-product-card" onClick={() => onClick(product)}>
+        <Link to={`/product/${product.id}`}>
+            <div className="admin-product-card" onClick={() => console.log("Clicked product:", product.id)}>
 
             {/* Badge giảm giá nếu discount > 0 */}
             {discount_percent > 0 && (
@@ -38,5 +39,7 @@ export default function ProductCard({ product, onClick }) {
             </div>
             <span className="sold">{sold_count} đã bán</span>
         </div>
+        </Link>
+        
     );
 }

@@ -1,11 +1,19 @@
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import routes from "./routes/index.jsx";
-import 'react-toastify/dist/ReactToastify.css';
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
     return (
-        <Router>
+        <>
+            <ToastContainer
+                    position="top-right"
+                    autoClose={1500}
+                    pauseOnHover={false}
+                    hideProgressBar={true}
+            />
+            <Router>
+                
             <Routes>
                 {routes.map(({path, element, children}, idx) => (
                     <Route key={idx} path={path} element={element}>
@@ -16,6 +24,7 @@ function App() {
                 ))}
             </Routes>
         </Router>
+        </>
     );
 }
 
