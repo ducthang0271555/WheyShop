@@ -137,6 +137,58 @@ def get_product(product_id):
 
     return jsonify({'product': product_data}), 200
 
+@product_bp.route('/get-product-public/<int:product_id>', methods=['GET'])
+def get_product_public(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    flavors_list = []
+    for f in product.flavors:
+        flavors_list.append({
+            'id': f.id,
+            'name': f.flavor_name,
+            'price': float(f.price),
+            'stock': f.stock,
+            'image': f.image_url
+        })
+
+    gifts_list = []
+    for g in product.gifts:
+        gifts_list.append({
+            'id': g.id,
+            'name': g.name,
+            'image': g.image_url
+        })
+
+    product_data = {
+        'id': product.id,
+        'sku': product.sku,
+        'name': product.name,
+        'description': product.description,
+        'price': float(product.price),
+        'discount_percent': product.discount_percent,
+        'price_after_discount': float(product.price) * (1 - product.discount_percent / 100),
+        'stock': product.stock,
+        'weight': product.weight,
+        'origin': product.origin,
+        'rating': product.rating,
+        'sold_count': product.sold_count,
+        'is_new': product.is_new,
+        'is_best_seller': product.is_best_seller,
+        'img_url': product.img_url,
+        'category_id': product.category_id,
+        'category_name': product.category.name if product.category else "Đang cập nhật",
+
+        'brand_id': product.brand_id,
+        'brand_name': product.brand.name if product.brand else "Đang cập nhật",
+        'flavors': flavors_list,
+        'gifts': gifts_list
+    }
+
+    return jsonify({'product': product_data}), 200
+
+
 
 @product_bp.route('/update-product/<int:product_id>', methods=['PUT'])
 @admin_required

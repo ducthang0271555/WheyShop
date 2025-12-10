@@ -9,6 +9,10 @@ const productApi = {
         return axiosClient.get(`/products/get-product/${id}`);
     },
 
+    getProductPublic: (id) => {
+        return axiosClient.get(`/products/get-product-public/${id}`)
+    },
+
     getProductFlashSale: (params) => {
         return axiosClient.get('/products/flash-sale', {params});
     },
