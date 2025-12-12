@@ -19,7 +19,18 @@
   border-radius: 10px;
   overflow: hidden;
 }
-
+.product-images-section{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.info_under_img{
+  line-height: 1.6;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 15px;
+}
 .product-main-image {
   width: 100%;
   object-fit: cover;
@@ -146,7 +157,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 120px;
+    width: 50%;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -167,7 +178,7 @@
 }
 
 .add-to-cart {
-    flex: 1;
+    width: 42%;
     padding: 14px;
     border: 1px solid #e63930;
     color: #e63930;
@@ -182,19 +193,22 @@
 .add-to-cart:hover {
     background: #ffe9e8;
 }
+.cart-buttons{
+    display: flex;
+    gap: 10px;
 
+}
 .buy-now {
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     background: #e63930;
     color: white;
     border: none;
     cursor: pointer;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: bold;
     border-radius: 6px;
     text-align: center;
-    line-height: 1.4;
     transition: 0.2s;
 }
 
@@ -205,4 +219,64 @@
 
 .buy-now:hover {
     background: #cf2e27;
+}
+.flavor_label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.flavor-button {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+    margin-right: 10px;
+}
+.flavor-button:hover {
+    background: #f9f9f9;
+    border-color: #bbb;
+}
+.flavor-button.selected {
+    background: #e11d48;
+    color: white;
+    border-color: #e11d48;
+}
+.product-rating{
+    font-size: 14px;
+    color: #555;
+    margin-right: 8px;
+    border-right: 1px solid #ccc;
+    padding-right: 8px;
+}
+.product-stock {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e11d48;
+    margin-top: 10px;
+}
+.product-stock-qty {
+    font-size: 20px;
+    font-weight: 700;
+}
+.gift{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.gift:hover {
+  background: #f9f9f9;
+  border-color: #bbb;
+}
+.gift img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
