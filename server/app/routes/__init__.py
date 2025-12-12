@@ -5,6 +5,7 @@ from ..routes.product import product_bp
 from ..routes.hash_tag import hash_tag_bp
 from ..routes.product_flavor import product_flavor_bp
 from ..routes.gift import gift_bp
+from ..routes.cart import cart_bp
 
 __all__ = [
     "user_bp",
@@ -14,4 +15,5 @@ __all__ = [
     "hash_tag_bp",
     "product_flavor_bp",
     "gift_bp",
+    "cart_bp",
 ]

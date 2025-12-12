@@ -1,13 +1,16 @@
 import '../../styles/components/header/navbar.css';
 import {ShoppingCart, User, Phone} from "lucide-react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import ConfirmModal from "../modals/ConfirmModal";
 import SearchBar from "./SearchBar";
+import {getCartLocal} from "../../utils/cart";
+import cartApi from "../../api/cartApi";
 
 
 export default function NavBar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [loggedIn, setLoggedIn] = useState(false);
     const [openMenu, setOpenMenu] = useState(false);
     const menuRef = useRef(null);
@@ -17,20 +20,22 @@ export default function NavBar() {
     useEffect(() => {
         const token = localStorage.getItem("access_token");
         setLoggedIn(!!token);
-    }, []);
-    useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartCount(cart.length);
-}, []);
-    useEffect(() => {
-    const handleStorage = () => {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartCount(cart.length);
-    };
+        updateCartBadge(!!token);
+    }, [location.pathname]);
 
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-}, []);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            if (!localStorage.getItem("access_token")) {
+                const cart = getCartLocal();
+                const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+                setCartCount(total);
+            }
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange);
+    }, []);
 
     useEffect(() => {
         const handler = (e) => {
@@ -46,8 +51,30 @@ export default function NavBar() {
         localStorage.removeItem("access_token");
         setLoggedIn(false);
         setShowLogoutModal(false);
+        setCartCount(0);
         navigate("/");
+        updateCartBadge(false);
     }
+
+    const updateCartBadge = async (isUserLoggedIn) => {
+        if (isUserLoggedIn) {
+            // --- ĐÃ ĐĂNG NHẬP: Gọi API ---
+            try {
+                const res = await cartApi.getCart();
+                // Tính tổng số lượng item (quantity) thay vì chỉ đếm số dòng
+                const items = res.cart_items || [];
+                const total = items.reduce((sum, item) => sum + item.quantity, 0);
+                setCartCount(total);
+            } catch (error) {
+                console.error("Lỗi lấy số lượng giỏ hàng:", error);
+            }
+        } else {
+            // --- KHÁCH VÃNG LAI: Lấy LocalStorage ---
+            const cart = getCartLocal();
+            const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+            setCartCount(total);
+        }
+    };
 
 
     return (
@@ -80,8 +107,7 @@ export default function NavBar() {
                 </div>
 
                 <button className="cart" onClick={() => navigate('/cart')}>
-                    <ShoppingCart size={22} />
-
+                    <ShoppingCart size={22}/>
                     <span>Giỏ hàng</span>
 
                     {cartCount > 0 && (

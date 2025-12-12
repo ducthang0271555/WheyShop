@@ -16,11 +16,16 @@ import ManageGift from "../pages/admin/ManageGift";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductListingPage from "../components/product/ProductListingPage";
 import ProductDetails from "../components/product/ProductDetails";
+import CartPage from "../pages/cart/CartPage";
 
 const routes = [
     {
         path: "/",
         element: <HomePage/>,
+    },
+    {
+      path: "/cart",
+        element: <CartPage/>
     },
     {
         path: "/auth",
