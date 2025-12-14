@@ -1,6 +1,7 @@
-import React from 'react';
 
-const CheckoutForm = ({ customerInfo, onInputChange, onCheckout }) => {
+const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList, districtList, wardList, onProvinceChange, onDistrictChange, onWardChange }) => {
+   
+    
     return (
         <div className="customer-section">
             <div className="section-title">Thông tin khách hàng</div>
@@ -41,16 +42,51 @@ const CheckoutForm = ({ customerInfo, onInputChange, onCheckout }) => {
             <div className="section-title">Chọn địa chỉ nhận hàng</div>
 
             <div className="form-row">
-                <select className="form-select" name="city" onChange={onInputChange} value={customerInfo.city}>
-                    <option value="">Tỉnh/Thành</option>
-                    <option value="Hanoi">Hà Nội</option>
-                    <option value="HCM">Hồ Chí Minh</option>
-                </select>
-                <select className="form-select" name="district" onChange={onInputChange} value={customerInfo.district}>
-                    <option value="">Quận/Huyện</option>
-                </select>
-                <select className="form-select" name="ward" onChange={onInputChange} value={customerInfo.ward}>
+                 { (
+                    <>
+                        <select 
+                            className="form-select" 
+                            name="city" 
+                            onChange={
+                                onProvinceChange
+                            }
+                            value={customerInfo.city}
+                        >
+                            <option value="">Tỉnh/Thành</option>
+                            {provinceList.map((province) => (
+                                <option key={province.code} value={province.code}>
+                                    {province.name}
+                                </option>
+                            ))}
+                        </select>
+                        <select 
+                            className="form-select" 
+                            name="district" 
+                            onChange={onDistrictChange} 
+                            value={customerInfo.district}>
+                                <option value="">Quận/Huyện</option>
+                                {districtList.map((district) => (
+                                    <option key={district.code} value={district.code}>
+                                        {district.name}
+                                    </option>
+                                ))}
+                        </select>
+                    </>
+                 )}   
+                
+                
+                <select
+                    className="form-select"
+                    name="ward"
+                    value={customerInfo.ward}
+                    onChange={onWardChange}
+                    >
                     <option value="">Phường/Xã</option>
+                    {wardList.map(w => (
+                        <option key={w.code} value={w.code}>
+                        {w.name}
+                        </option>
+                    ))}
                 </select>
             </div>
 

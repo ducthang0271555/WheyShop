@@ -230,7 +230,11 @@ export default function ProductDetails() {
                                 >
                                     THÊM VÀO GIỎ
                                 </button>
-                                <button className="buy-now">
+                                <button className="buy-now"
+                                onClick={() => {
+                                  handleAddToCart(product, amount);
+                                  window.location.href = '/cart';}}
+                                >
                                     MUA NGAY
                                     <span> GIAO HÀNG TẬN NƠI HOẶC NHẬN TẠI CỬA HÀNG</span>
                                 </button>

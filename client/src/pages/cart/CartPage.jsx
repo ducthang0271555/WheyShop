@@ -17,17 +17,51 @@ const CartPage = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
-
+    const [provinceList,setProvinceList] = useState([]);
+    const [districtList, setDistrictList] = useState([]);
+    const [wardList, setWardList] = useState([]);
     const [customerInfo, setCustomerInfo] = useState({
         name: "",
         phone: "",
         email: "",
         address: "",
         note: "",
-        city: "",
-        district: "",
-        ward: ""
+        provinceName: "",
+        districtName: "",
+        wardCode: "",
+        wardName: ""
     });
+    useEffect(() => {
+        fetchProvinces();
+    },[]);
+    const fetchProvinces = async () => {
+            try {
+                const response = await fetch("https://provinces.open-api.vn/api/p/");
+                const data = await response.json();
+                setProvinceList(data);
+            } catch (error) {
+                console.error("Error fetching provinces:", error);
+            }
+        }
+    const fetchDistricts = async (provinceCode) => {
+        try {
+            const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+            const data = await response.json();
+            setDistrictList(data.districts);
+        } catch (error) {
+            console.error("Error fetching districts:", error);
+        }
+    }
+    const fetchWards = async (districtCode) => {
+        try {
+            const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+            const data = await response.json();
+            setWardList(data.wards);
+        } catch (error) {
+            console.error("Error fetching wards:", error);
+        }
+    }
+    
 
     const formatVND = (value) => value?.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
 
@@ -72,7 +106,8 @@ const CartPage = () => {
         fetchCart();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
+ 
+  
     const handleQuantityChange = async (itemId, currentQty, change) => {
         const newQty = currentQty + change;
         if (newQty < 1) return;
@@ -129,7 +164,49 @@ const CartPage = () => {
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
-        setCustomerInfo({...customerInfo, [name]: value});
+
+        setCustomerInfo({
+            ...customerInfo, [name]: value
+        });
+    };
+    const handleProvinceChange = (e) => {
+        const provinceCode = e.target.value;
+        const province = provinceList.find(p => p.code == provinceCode);
+
+        setCustomerInfo(prev => ({
+            ...prev,
+            city: provinceCode,
+            provinceName: province.name,
+            districtName: "",
+            wardCode: "",
+            wardName: ""
+        }));
+        fetchDistricts(provinceCode);
+        
+    };
+    const handleDistrictChange = (e) => {
+        const districtCode = e.target.value;
+        const district = districtList.find(d => d.code == districtCode);
+
+        setCustomerInfo(prev => ({
+            ...prev,
+            district: districtCode,
+            districtName: district.name,
+            wardCode: "",
+            wardName: ""
+        }));
+
+        fetchWards(districtCode);
+    };
+    const handleWardChange = (e) => {
+    const wardCode = e.target.value;
+    const ward = wardList.find(w => w.code == wardCode);
+
+    setCustomerInfo(prev => ({
+        ...prev,
+        wardCode,
+        wardName: ward.name
+    }));
     };
 
     const handleCheckout = () => {
@@ -162,6 +239,12 @@ const CartPage = () => {
                         customerInfo={customerInfo}
                         onInputChange={handleInputChange}
                         onCheckout={handleCheckout}
+                        provinceList={provinceList}
+                        districtList={districtList}
+                        wardList={wardList}
+                        onProvinceChange={handleProvinceChange}
+                        onDistrictChange={handleDistrictChange}
+                        onWardChange={handleWardChange}
                     />
                 </div>
             </div>

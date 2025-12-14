@@ -25,9 +25,7 @@ function FlashSale() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     },[]);
 
-    const handleProductClick = (product) => {
-        console.log("Click:", product);
-    };
+    
 
     return (
         <div className="flash-sale-container">
@@ -45,7 +43,6 @@ function FlashSale() {
                         <div key={product.id} className="fs-item-wrapper">
                             <ProductCard
                                 product={product}
-                                onClick={handleProductClick}
                             />
                         </div>
                     ))
