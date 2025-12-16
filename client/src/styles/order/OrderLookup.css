@@ -1,0 +1,115 @@
+.lookup-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    min-height: 60vh;
+}
+
+.search-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.search-input-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-btn {
+    padding: 12px 24px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background-color: #b71c1c;
+}
+
+.order-result {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.status-pending {
+    background: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffe0b2;
+}
+
+.status-shipping {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.status-delivered {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.item-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 15px;
+}
+
+.item-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}

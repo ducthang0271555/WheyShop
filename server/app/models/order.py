@@ -18,6 +18,7 @@ class Order(db.Model):
 
     status = db.Column(db.String(20), default='PENDING') # PENDING, PAID, CANCELLED
     payment_method = db.Column(db.String(20), default='COD')  # COD, BANK
+    is_paid = db.Column(db.Boolean, default=False)
 
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

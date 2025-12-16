@@ -1,5 +1,5 @@
 import '../../styles/components/header/navbar.css';
-import {ShoppingCart, User, Phone} from "lucide-react";
+import {ShoppingCart, User, Phone, FileText} from "lucide-react";
 import {useNavigate, useLocation} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import ConfirmModal from "../modals/ConfirmModal";
@@ -60,10 +60,8 @@ export default function NavBar() {
 
     const updateCartBadge = async (isUserLoggedIn) => {
         if (isUserLoggedIn) {
-            // --- ĐÃ ĐĂNG NHẬP: Gọi API ---
             try {
                 const res = await cartApi.getCart();
-                // Tính tổng số lượng item (quantity) thay vì chỉ đếm số dòng
                 const items = res.cart_items || [];
                 const total = items.reduce((sum, item) => sum + item.quantity, 0);
                 setCartCount(total);
@@ -71,10 +69,17 @@ export default function NavBar() {
                 console.error("Lỗi lấy số lượng giỏ hàng:", error);
             }
         } else {
-            // --- KHÁCH VÃNG LAI: Lấy LocalStorage ---
             const cart = getCartLocal();
             const total = cart.reduce((sum, item) => sum + item.quantity, 0);
             setCartCount(total);
+        }
+    };
+
+    const handleOrderClick = () => {
+        if (loggedIn) {
+            navigate('/history');
+        } else {
+            navigate('/order-lookup');
         }
     };
 
@@ -82,7 +87,6 @@ export default function NavBar() {
     return (
         <div className="navbar">
             <div className="container">
-                {/* Logo + Danh mục */}
                 <div className="logo-and-categories">
                     <img
                         src="/logo.png"
@@ -115,6 +119,11 @@ export default function NavBar() {
                     {cartCount > 0 && (
                         <span className="cart-badge">{cartCount}</span>
                     )}
+                </button>
+
+                <button className="cart" onClick={handleOrderClick} style={{marginRight: '10px'}}>
+                    <FileText size={22}/>
+                    <span>Đơn hàng</span>
                 </button>
 
                 <div className="user-menu-wrapper" ref={menuRef}>

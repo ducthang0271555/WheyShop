@@ -18,6 +18,8 @@ import ProductListingPage from "../components/product/ProductListingPage";
 import ProductDetails from "../components/product/ProductDetails";
 import CartPage from "../pages/cart/CartPage";
 import OrderSuccess from "../pages/order/OrderSuccess";
+import OrderLookup from "../pages/order/OrderLookup";
+import HistoryPage from "../pages/order/HistoryPage";
 
 const routes = [
     {
@@ -31,6 +33,14 @@ const routes = [
     {
         path: "/order-success",
         element: <OrderSuccess/>
+    },
+    {
+        path: "/order-lookup",
+        element: <OrderLookup/>
+    },
+    {
+      path: "/history",
+        element: <HistoryPage/>
     },
     {
         path: "/auth",

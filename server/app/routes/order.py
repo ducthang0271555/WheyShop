@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import verify_jwt_in_request
+from flask_jwt_extended import verify_jwt_in_request, jwt_required
 from app.models import Product, ProductFlavor, Order, OrderItem, Cart
 from app.extensions import db, payos
+from app.routes.decorator import admin_required
 from app.utils.helper import generate_unique_order_code
 from app.routes.cart import get_current_user_id
 import time
@@ -179,6 +180,7 @@ def payos_webhook():
                     return jsonify({"error": "Amount mismatch"}), 400
 
                 order.status = 'PAID'
+                order.is_paid = True
                 db.session.commit()
 
             return jsonify({"success": True}), 200
@@ -188,3 +190,127 @@ def payos_webhook():
     except Exception as e:
         print(">>> WEBHOOK ERROR:", str(e))
         return jsonify({"error": str(e)}), 400
+
+
+@order_bp.route('/lookup/<string:order_code>', methods=['GET'])
+def lookup_order(order_code):
+    order = Order.query.filter_by(order_code=order_code).first()
+
+    if not order:
+        return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+    items_data = []
+    for item in order.items:
+        items_data.append({
+            'product_name': item.product_name,
+            'flavor_name': item.flavor_name,
+            'gift_name': item.gift_name,
+            'quantity': item.quantity,
+            'price': item.price,
+            'image_url': item.image_url
+        })
+
+    return jsonify({
+        'order': {
+            'order_code': order.order_code,
+            'status': order.status,
+            'created_at': order.created_at,
+            'total_amount': order.total_amount,
+            'payment_method': order.payment_method,
+            'full_name': order.full_name,
+            'phone': order.phone,
+            'address': order.address,
+            'items': items_data
+        }
+    }), 200
+
+
+# app/routes/order.py
+
+@order_bp.route('/my-orders', methods=['GET'])
+@jwt_required()
+def get_my_orders():
+    user_id = get_current_user_id()  # Dùng hàm helper lấy ID chuẩn
+
+    if not user_id:
+        return jsonify({'error': 'Invalid Token'}), 401
+
+    # Lấy danh sách đơn hàng của user, mới nhất lên đầu
+    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+
+    result = []
+    for order in orders:
+        items_data = []
+        for item in order.items:
+            items_data.append({
+                'product_name': item.product_name,
+                'flavor_name': item.flavor_name,
+                'gift_name': item.gift_name,
+                'quantity': item.quantity,
+                'price': item.price,
+                'image_url': item.image_url
+            })
+
+        result.append({
+            'order_code': order.order_code,
+            'status': order.status,
+            'created_at': order.created_at,
+            'total_amount': order.total_amount,
+            'payment_method': order.payment_method,
+            'address': order.address,
+            'items': items_data
+        })
+
+    return jsonify({'orders': result}), 200
+
+@order_bp.route('/get-all-orders', methods=['GET'])
+@admin_required
+def get_all_orders():
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+
+    result = []
+    for order in orders:
+        items_data = []
+        for item in order.items:
+            items_data.append({
+                'product_name': item.product_name,
+                'quantity': item.quantity
+            })
+
+        result.append({
+            'id': order.id,
+            'order_code': order.order_code,
+            'is_paid': order.is_paid,
+            'status': order.status,
+            'created_at': order.created_at,
+            'total_amount': order.total_amount,
+            'payment_method': order.payment_method,
+            'full_name': order.full_name,
+            'phone': order.phone,
+            'items_summary': items_data
+        })
+
+    return jsonify({'orders': result}), 200
+
+@order_bp.route('/update-status/<int:order_id>', methods=['PUT'])
+@admin_required
+def update_order_status(order_id):
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    data = request.json
+    new_status = data.get('status')
+
+    valid_statuses = ['PENDING', 'PAID', 'SHIPPING', 'DELIVERED', 'CANCELLED']
+    if new_status not in valid_statuses:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    order.status = new_status
+
+    if new_status == 'PAID':
+        order.is_paid = True
+
+    db.session.commit()
+
+    return jsonify({'message': f'Order status updated to {new_status}'}), 200
