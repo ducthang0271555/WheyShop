@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import cartApi from "../../api/cartApi";
-import {getCartLocal, updateCartLocal, removeFromCartLocal} from "../../utils/cart";
+import orderApi from "../../api/orderApi";
+import locationApi from "../../api/locationApi";
+import {getCartLocal, updateCartLocal, removeFromCartLocal, clearCartLocal} from "../../utils/cart";
 import Footer from "../../components/footer/Footer";
 import "../../styles/cart/CartPage.css";
 import Header from "../../components/header/Header";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import CheckoutForm from "./CheckoutForm";
 import CartSection from "./CartSection";
+import ContactButton from "../../components/common/ContactButton";
+import {toast} from "react-toastify";
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -20,6 +24,7 @@ const CartPage = () => {
     const [provinceList,setProvinceList] = useState([]);
     const [districtList, setDistrictList] = useState([]);
     const [wardList, setWardList] = useState([]);
+    const [paymentMethod, setPaymentMethod] = useState("COD");
     const [customerInfo, setCustomerInfo] = useState({
         name: "",
         phone: "",
@@ -31,36 +36,73 @@ const CartPage = () => {
         wardCode: "",
         wardName: ""
     });
+
     useEffect(() => {
-        fetchProvinces();
-    },[]);
-    const fetchProvinces = async () => {
+        const fetchProvinces = async () => {
             try {
-                const response = await fetch("https://provinces.open-api.vn/api/p/");
-                const data = await response.json();
-                setProvinceList(data);
+                const res = await locationApi.getAllProvinces();
+                setProvinceList(res.data);
             } catch (error) {
-                console.error("Error fetching provinces:", error);
+                console.error("Lỗi lấy danh sách tỉnh:", error);
             }
-        }
-    const fetchDistricts = async (provinceCode) => {
+        };
+        fetchProvinces();
+    }, []);
+
+    const handleProvinceChange = async (e) => {
+        const provinceCode = e.target.value;
+        const province = provinceList.find(p => p.code === Number(provinceCode));
+
+        setCustomerInfo(prev => ({
+            ...prev,
+            city: provinceCode,
+            provinceName: province?.name || "",
+            districtName: "",
+            wardCode: "",
+            wardName: ""
+        }));
+
+        setDistrictList([]);
+        setWardList([]);
+
         try {
-            const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
-            const data = await response.json();
-            setDistrictList(data.districts);
+            const res = await locationApi.getDistricts(provinceCode);
+            setDistrictList(res.data.districts);
         } catch (error) {
-            console.error("Error fetching districts:", error);
+            console.error(error);
         }
-    }
-    const fetchWards = async (districtCode) => {
+    };
+
+    const handleDistrictChange = async (e) => {
+        const districtCode = e.target.value;
+        const district = districtList.find(d => d.code === Number(districtCode));
+
+        setCustomerInfo(prev => ({
+            ...prev,
+            district: districtCode,
+            districtName: district?.name || "",
+            wardCode: "",
+            wardName: ""
+        }));
+
         try {
-            const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
-            const data = await response.json();
-            setWardList(data.wards);
+            const res = await locationApi.getWards(districtCode);
+            setWardList(res.data.wards);
         } catch (error) {
-            console.error("Error fetching wards:", error);
+            console.error(error);
         }
-    }
+    };
+
+    const handleWardChange = (e) => {
+        const wardCode = e.target.value;
+        const ward = wardList.find(w => w.code === Number(wardCode));
+
+        setCustomerInfo(prev => ({
+            ...prev,
+            wardCode,
+            wardName: ward?.name || ""
+        }));
+    };
     
 
     const formatVND = (value) => value?.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
@@ -151,6 +193,7 @@ const CartPage = () => {
         if (token) {
             try {
                 await cartApi.deleteItem(itemToDelete);
+                window.dispatchEvent(new Event("cart-change"));
             } catch (err) {
                 console.error(err);
             }
@@ -169,53 +212,54 @@ const CartPage = () => {
             ...customerInfo, [name]: value
         });
     };
-    const handleProvinceChange = (e) => {
-        const provinceCode = e.target.value;
-        const province = provinceList.find(p => p.code == provinceCode);
 
-        setCustomerInfo(prev => ({
-            ...prev,
-            city: provinceCode,
-            provinceName: province.name,
-            districtName: "",
-            wardCode: "",
-            wardName: ""
-        }));
-        fetchDistricts(provinceCode);
-        
-    };
-    const handleDistrictChange = (e) => {
-        const districtCode = e.target.value;
-        const district = districtList.find(d => d.code == districtCode);
 
-        setCustomerInfo(prev => ({
-            ...prev,
-            district: districtCode,
-            districtName: district.name,
-            wardCode: "",
-            wardName: ""
-        }));
 
-        fetchWards(districtCode);
-    };
-    const handleWardChange = (e) => {
-    const wardCode = e.target.value;
-    const ward = wardList.find(w => w.code == wardCode);
-
-    setCustomerInfo(prev => ({
-        ...prev,
-        wardCode,
-        wardName: ward.name
-    }));
-    };
-
-    const handleCheckout = () => {
-        if (!customerInfo.name || !customerInfo.phone) {
-            alert("Vui lòng điền họ tên và số điện thoại!");
+    const handleCheckout = async () => {
+        if (!customerInfo.name || !customerInfo.phone || !customerInfo.address ||
+            !customerInfo.city || !customerInfo.district || !customerInfo.wardCode) {
+            alert("Vui lòng điền đầy đủ thông tin nhận hàng!");
             return;
         }
-        console.log("Đặt hàng:", {customerInfo, cartItems, totalPrice});
-        alert("Đặt hàng thành công! (Demo)");
+
+        if (cartItems.length === 0) return alert("Giỏ hàng trống!");
+
+        const orderData = {
+            customerInfo: {
+                ...customerInfo,
+                city: customerInfo.provinceName,
+                district: customerInfo.districtName,
+                ward: customerInfo.wardName
+            },
+            items: cartItems,
+            total_price: totalPrice,
+            payment_method: paymentMethod
+        };
+
+        setLoading(true);
+        try {
+            const res = await orderApi.createOrder(orderData);
+            if (paymentMethod === 'BANK' && res.checkoutUrl) {
+                window.location.href = res.checkoutUrl;
+            } else {
+                toast.success("Đơn hàng được tạo thành công!");
+
+                const token = localStorage.getItem("access_token");
+                if (!token) {
+                    clearCartLocal();
+                }
+
+                setCartItems([]);
+                setTotalPrice(0);
+
+                navigate("/order-success", {state: { orderCode: res.order_code } });
+            }
+        } catch (error) {
+            console.error("Lỗi tạo đơn hàng:", error);
+            alert("Đã có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (loading) return <div style={{textAlign: 'center', marginTop: 50}}>Đang tải giỏ hàng...</div>;
@@ -223,6 +267,7 @@ const CartPage = () => {
     return (
         <>
             <Header/>
+            <ContactButton/>
             <div className="cart-page-container">
                 <div style={{padding: "0 15px"}}>
                     <CartSection
@@ -245,6 +290,8 @@ const CartPage = () => {
                         onProvinceChange={handleProvinceChange}
                         onDistrictChange={handleDistrictChange}
                         onWardChange={handleWardChange}
+                        paymentMethod={paymentMethod}
+                        setPaymentMethod={setPaymentMethod}
                     />
                 </div>
             </div>

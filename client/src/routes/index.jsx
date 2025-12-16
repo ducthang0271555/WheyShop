@@ -17,6 +17,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import ProductListingPage from "../components/product/ProductListingPage";
 import ProductDetails from "../components/product/ProductDetails";
 import CartPage from "../pages/cart/CartPage";
+import OrderSuccess from "../pages/order/OrderSuccess";
 
 const routes = [
     {
@@ -24,8 +25,12 @@ const routes = [
         element: <HomePage/>,
     },
     {
-      path: "/cart",
+        path: "/cart",
         element: <CartPage/>
+    },
+    {
+        path: "/order-success",
+        element: <OrderSuccess/>
     },
     {
         path: "/auth",

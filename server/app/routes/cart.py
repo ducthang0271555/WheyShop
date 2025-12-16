@@ -21,11 +21,9 @@ def get_current_user_id():
 
     if isinstance(identity, str):
         try:
-            # Cố gắng parse JSON string: '{"id": 17, ...}'
             data = json.loads(identity)
             return data.get('id')
         except:
-            # Cố gắng parse số: "17"
             if identity.isdigit():
                 return int(identity)
 
@@ -39,7 +37,6 @@ def add_to_cart():
     if not user_id:
         return jsonify({'error': 'Invalid User ID in Token'}), 401
 
-    # --- Phần code logic thêm giỏ hàng giữ nguyên ---
     data = request.json
     product_id = data.get('product_id')
     flavor_id = data.get('flavor_id')
@@ -104,7 +101,6 @@ def get_cart():
             base_price = base_price - 30000
             if base_price < 0: base_price = 0
 
-        # Công thức: (Giá - 30k) * (1 - % giảm)
         final_price = float(base_price) * (1 - (product.discount_percent or 0) / 100)
 
         image_url = flavor.image_url if (flavor and flavor.image_url) else product.img_url
@@ -181,7 +177,6 @@ def clear_cart():
     if not user_id:
         return jsonify({'error': 'Invalid User ID in Token'}), 401
 
-    # Xóa tất cả item của user
     Cart.query.filter_by(user_id=user_id).delete()
     db.session.commit()
 

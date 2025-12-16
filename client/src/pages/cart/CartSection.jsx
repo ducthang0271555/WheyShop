@@ -68,7 +68,6 @@ const CartSection = ({
                 ))
             )}
 
-            {/* Tổng tiền tạm tính */}
             <div className="summary-row" style={{borderTop: 'none'}}>
                 <div className="total-label">Tạm tính:</div>
                 <div className="total-price">{formatVND(totalPrice)}</div>

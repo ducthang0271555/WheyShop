@@ -1,7 +1,8 @@
 
-const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList, districtList, wardList, onProvinceChange, onDistrictChange, onWardChange }) => {
-   
-    
+const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList,
+                          districtList, wardList, onProvinceChange, onDistrictChange, onWardChange,
+                          paymentMethod, setPaymentMethod}) => {
+
     return (
         <div className="customer-section">
             <div className="section-title">Thông tin khách hàng</div>
@@ -42,11 +43,11 @@ const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList, d
             <div className="section-title">Chọn địa chỉ nhận hàng</div>
 
             <div className="form-row">
-                 { (
+                {(
                     <>
-                        <select 
-                            className="form-select" 
-                            name="city" 
+                        <select
+                            className="form-select"
+                            name="city"
                             onChange={
                                 onProvinceChange
                             }
@@ -59,32 +60,32 @@ const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList, d
                                 </option>
                             ))}
                         </select>
-                        <select 
-                            className="form-select" 
-                            name="district" 
-                            onChange={onDistrictChange} 
+                        <select
+                            className="form-select"
+                            name="district"
+                            onChange={onDistrictChange}
                             value={customerInfo.district}>
-                                <option value="">Quận/Huyện</option>
-                                {districtList.map((district) => (
-                                    <option key={district.code} value={district.code}>
-                                        {district.name}
-                                    </option>
-                                ))}
+                            <option value="">Quận/Huyện</option>
+                            {districtList.map((district) => (
+                                <option key={district.code} value={district.code}>
+                                    {district.name}
+                                </option>
+                            ))}
                         </select>
                     </>
-                 )}   
-                
-                
+                )}
+
+
                 <select
                     className="form-select"
                     name="ward"
                     value={customerInfo.ward}
                     onChange={onWardChange}
-                    >
+                >
                     <option value="">Phường/Xã</option>
                     {wardList.map(w => (
                         <option key={w.code} value={w.code}>
-                        {w.name}
+                            {w.name}
                         </option>
                     ))}
                 </select>
@@ -111,8 +112,34 @@ const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList, d
                 ></textarea>
             </div>
 
+            <div className="section-title" style={{marginTop: '20px'}}>Phương thức thanh toán</div>
+            <div className="payment-methods">
+                <label className="payment-option"
+                       style={{display: 'flex', gap: '10px', marginBottom: '10px', cursor: 'pointer'}}>
+                    <input
+                        type="radio"
+                        name="payment"
+                        value="COD"
+                        checked={paymentMethod === 'COD'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+                    <span>Thanh toán khi nhận hàng (COD)</span>
+                </label>
+
+                <label className="payment-option" style={{display: 'flex', gap: '10px', cursor: 'pointer'}}>
+                    <input
+                        type="radio"
+                        name="payment"
+                        value="BANK"
+                        checked={paymentMethod === 'BANK'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+                    <span>Chuyển khoản ngân hàng (QR Code)</span>
+                </label>
+            </div>
+
             <button className="checkout-btn" onClick={onCheckout}>
-                Xác nhận đặt hàng
+                {paymentMethod === 'BANK' ? 'Thanh toán ngay' : 'Xác nhận đặt hàng'}
             </button>
         </div>
     );

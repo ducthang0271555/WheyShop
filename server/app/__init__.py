@@ -33,7 +33,7 @@ def create_app():
     from .models import user, product, category, order, cart, order_item, brand, product_flavor, hash_tag, gift
 
     # Import routes SAU KHI models được load
-    from .routes import user_bp, brand_bp, category_bp, product_bp, hash_tag_bp, product_flavor_bp, cart_bp
+    from .routes import user_bp, brand_bp, category_bp, product_bp, hash_tag_bp, product_flavor_bp, cart_bp, order_bp
     app.register_blueprint(user_bp, url_prefix='/users')
     app.register_blueprint(brand_bp, url_prefix='/brands')
     app.register_blueprint(category_bp, url_prefix='/categories')
@@ -42,5 +42,6 @@ def create_app():
     app.register_blueprint(product_flavor_bp, url_prefix='/product_flavors')
     app.register_blueprint(gift_bp, url_prefix='/gifts')
     app.register_blueprint(cart_bp, url_prefix='/cart')
+    app.register_blueprint(order_bp, url_prefix='/orders')
 
     return app

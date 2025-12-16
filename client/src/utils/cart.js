@@ -74,6 +74,7 @@ export const addToCartLocal = (product, quantity, selectedGiftId, flavorSelected
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
 
     window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("cart-change"));
 
     toast.success("Đã thêm vào giỏ!", {
         pauseOnHover: false,
@@ -94,6 +95,7 @@ export const updateCartLocal = (cartId, newQuantity) => {
 
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("cart-change"));
 };
 
 

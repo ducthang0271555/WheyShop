@@ -25,17 +25,19 @@ export default function NavBar() {
 
 
     useEffect(() => {
-        const handleStorageChange = () => {
-            if (!localStorage.getItem("access_token")) {
-                const cart = getCartLocal();
-                const total = cart.reduce((sum, item) => sum + item.quantity, 0);
-                setCartCount(total);
-            }
-        };
+            const handleCartChange = () => {
+                const token = localStorage.getItem("access_token");
+                updateCartBadge(!!token);
+            };
 
-        window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
-    }, []);
+            window.addEventListener("storage", handleCartChange);
+            window.addEventListener("cart-change", handleCartChange);
+
+            return () => {
+                window.removeEventListener("storage", handleCartChange);
+                window.removeEventListener("cart-change", handleCartChange);
+            };
+        }, []);
 
     useEffect(() => {
         const handler = (e) => {

@@ -7,6 +7,7 @@ import Header from "../header/Header";
 import Footer from "../footer/Footer";
 import { addToCartLocal } from "../../utils/cart";
 import {toast} from "react-toastify";
+
 export default function ProductDetails() {
     const {id} = useParams();
     const [product, setProduct] = useState(null);
@@ -51,6 +52,7 @@ export default function ProductDetails() {
                 toast.success("Đã thêm vào giỏ hàng!");
 
                 setAmount(1);
+                window.dispatchEvent(new Event("cart-change"));
 
 
             } catch (error) {
@@ -65,6 +67,7 @@ export default function ProductDetails() {
         } else {
             addToCartLocal(product, amount, selectedGift, flavorSelected);
             setAmount(1);
+            window.dispatchEvent(new Event("cart-change"));
         }
 
     }
@@ -127,8 +130,8 @@ export default function ProductDetails() {
                 <div className="product-info-section">
                     <h1 className="product-title">{product.name}</h1>
                     <p>
-                        <span className="product-rating">Đã bán: {product.rating} </span>
-                        <span className="product-rating">Đánh giá: {product.sold_count}⭐</span>
+                        <span className="product-rating">Đã bán: {product.sold_count} </span>
+                        <span className="product-rating">Đánh giá: {product.rating}⭐</span>
                     </p>
 
 
@@ -160,13 +163,15 @@ export default function ProductDetails() {
                                 )
                             }
                         </div>
-                    )
-                    }
+                    )}
 
 
                     <p className="product-description">{product.description}</p>
-                    <p className="product-stock">🔥Chỉ còn <span
-                        className="product-stock-qty">{product.stock}</span> trong kho</p>
+                    <p className="product-stock">
+                        🔥 Chỉ còn <span className="product-stock-qty">
+                        {flavorSelected ? flavorSelected.stock : product.stock}
+                        </span> sản phẩm trong kho
+                    </p>
                     <div className="border rounded-xl p-4 bg-gray-50">
                         <h3 className="text-red-600 font-semibold mb-3">Chọn quà tặng</h3>
 
