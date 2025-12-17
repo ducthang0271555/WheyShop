@@ -24,7 +24,7 @@ const InvoiceTemplate = forwardRef(({ order }, ref) => {
                 </div>
                  <div style={{flex: 1, textAlign: 'right'}}>
                     <h3>Đơn vị bán hàng</h3>
-                    <p><strong>Cửa hàng ABC Store</strong></p>
+                    <p><strong>Cửa hàng Whey Vip Pro</strong></p>
                     <p>Hotline: 0999.888.777</p>
                     <p>Địa chỉ: TP. Hồ Chí Minh</p>
                 </div>

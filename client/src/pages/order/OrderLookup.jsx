@@ -179,9 +179,6 @@ const OrderLookup = () => {
                     </div>
                 )}
             </div>
-
-
-
             <Footer/>
         </>
     );

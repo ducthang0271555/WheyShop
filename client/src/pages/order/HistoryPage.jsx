@@ -161,7 +161,6 @@ const HistoryPage = () => {
                         }}
                     />
                 )}
-
             </div>
             <Footer />
         </>

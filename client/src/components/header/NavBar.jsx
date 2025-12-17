@@ -158,6 +158,7 @@ export default function NavBar() {
                     )}
                 </div>
             </div>
+
             {showLogoutModal && (
                 <ConfirmModal
                     title="Xác nhận đăng xuất"

@@ -26,20 +26,6 @@ const CheckoutForm = ({ customerInfo, onInputChange, onCheckout, provinceList,
                 />
             </div>
 
-            <div className="form-row">
-                <input
-                    type="email"
-                    name="email"
-                    className="form-input"
-                    placeholder="Email (Dùng để thông báo đơn hàng)..."
-                    value={customerInfo.email}
-                    onChange={onInputChange}
-                />
-            </div>
-            <p className="warning-text">
-                Nếu bạn không có Email, vui lòng nhắn tin Messenger hoặc Chat Zalo để đặt hàng
-            </p>
-
             <div className="section-title">Chọn địa chỉ nhận hàng</div>
 
             <div className="form-row">
