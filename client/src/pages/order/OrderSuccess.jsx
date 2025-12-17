@@ -5,6 +5,8 @@ import Footer from "../../components/footer/Footer";
 import {clearCartLocal} from "../../utils/cart";
 import cartApi from "../../api/cartApi";
 import "../../styles/order/OrderSuccess.css";
+import { toast } from "react-toastify";
+import { Copy } from "lucide-react";
 
 const OrderSuccess = () => {
     const location = useLocation();
@@ -31,15 +33,36 @@ const OrderSuccess = () => {
     }, [location]);
 
     useEffect(() => {
-           if (status === "success") {
-               const token = localStorage.getItem("access_token");
-               clearCartLocal();
+        if (status === "success") {
+            const token = localStorage.getItem("access_token");
+            clearCartLocal();
 
-               if (token) {
-                    cartApi.clearCart().catch(err => console.log("Cart already cleared"));
-               }
-           }
-       }, [status]);
+            if (token) {
+                cartApi.clearCart().catch(err => console.log("Cart already cleared"));
+            }
+        }
+    }, [status]);
+
+    const handleCopyCode = () => {
+        if (orderCode) {
+            navigator.clipboard.writeText(orderCode);
+            toast.success("Đã sao chép mã đơn hàng!", {
+                autoClose: 2000,
+                hideProgressBar: true,
+                position: "bottom-center"
+            });
+        }
+    };
+
+    const handleViewOrder = () => {
+        const token = localStorage.getItem("access_token");
+
+        if (token) {
+            navigate("/history");
+        } else {
+            navigate("/order-lookup", {state: {autoSearchCode: orderCode}});
+        }
+    };
 
     return (
         <>
@@ -55,7 +78,7 @@ const OrderSuccess = () => {
                             </div>
                             <h1 className="success-title">Đặt hàng thành công!</h1>
                             <p className="success-message">
-                                Cảm ơn bạn đã mua hàng tại WheyShop.<br />
+                                Cảm ơn bạn đã mua hàng tại Whey Vip Pro.<br />
                                 Đơn hàng của bạn đã được tiếp nhận và đang xử lý.
                             </p>
                         </>
@@ -77,7 +100,19 @@ const OrderSuccess = () => {
                     {orderCode && (
                         <div className="order-info-box">
                             <div className="order-label">Mã đơn hàng của bạn</div>
-                            <div className="order-code">{orderCode}</div>
+                            <div className="order-code-wrapper"
+                                 style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'}}>
+                                <div className="order-code" style={{marginBottom: 0}}>{orderCode}</div>
+
+                                <button
+                                    onClick={handleCopyCode}
+                                    title="Sao chép mã đơn"
+                                    onMouseOver={(e) => e.currentTarget.style.color = '#007bff'}
+                                    onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                                >
+                                    <Copy size={18}/>
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -85,13 +120,13 @@ const OrderSuccess = () => {
                         <button className="btn-home" onClick={() => navigate("/")}>
                             Tiếp tục mua sắm
                         </button>
-                        <button className="btn-history" onClick={() => navigate("/history")}>
+                        <button className="btn-history" onClick={handleViewOrder}>
                             Xem đơn hàng
                         </button>
                     </div>
                 </div>
             </div>
-            <Footer />
+            <Footer/>
         </>
     );
 };

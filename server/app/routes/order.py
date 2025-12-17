@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import verify_jwt_in_request, jwt_required
-from app.models import Product, ProductFlavor, Order, OrderItem, Cart
+from app.models import Product, ProductFlavor, Order, OrderItem, Cart, User
 from app.extensions import db, payos
 from app.routes.decorator import admin_required
 from app.utils.helper import generate_unique_order_code
 from app.routes.cart import get_current_user_id
 import time
+from decimal import Decimal
 import os
 
 order_bp = Blueprint('orders', __name__)
@@ -224,18 +225,50 @@ def lookup_order(order_code):
         }
     }), 200
 
+@order_bp.route('/get-order-detail/<int:order_id>', methods=['GET'])
+@admin_required
+def get_order_detail_admin(order_id):
+    order = Order.query.get(order_id)
 
-# app/routes/order.py
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    items_data = []
+    for item in order.items:
+        items_data.append({
+            'product_name': item.product_name,
+            'flavor_name': item.flavor_name,
+            'gift_name': item.gift_name,
+            'quantity': item.quantity,
+            'price': float(item.price),
+            'image_url': item.image_url
+        })
+
+    return jsonify({
+        'order': {
+            'id': order.id,
+            'order_code': order.order_code,
+            'status': order.status,
+            'is_paid': order.is_paid,
+            'created_at': order.created_at,
+            'total_amount': order.total_amount,
+            'payment_method': order.payment_method,
+            'full_name': order.full_name,
+            'phone': order.phone,
+            'address': order.address,
+            'note': order.note,
+            'items': items_data
+        }
+    }), 200
 
 @order_bp.route('/my-orders', methods=['GET'])
 @jwt_required()
 def get_my_orders():
-    user_id = get_current_user_id()  # Dùng hàm helper lấy ID chuẩn
+    user_id = get_current_user_id()
 
     if not user_id:
         return jsonify({'error': 'Invalid Token'}), 401
 
-    # Lấy danh sách đơn hàng của user, mới nhất lên đầu
     orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
 
     result = []
@@ -306,6 +339,15 @@ def update_order_status(order_id):
     if new_status not in valid_statuses:
         return jsonify({'error': 'Invalid status'}), 400
 
+    if new_status == 'DELIVERED' and order.status != 'DELIVERED':
+        if order.user_id:
+            user = User.query.get(order.user_id)
+            if user:
+                current_spent = user.total_spent if user.total_spent is not None else 0
+                order_price = Decimal(str(order.total_amount))
+                user.total_spent = current_spent + order_price
+
+
     order.status = new_status
 
     if new_status == 'PAID':
@@ -314,3 +356,54 @@ def update_order_status(order_id):
     db.session.commit()
 
     return jsonify({'message': f'Order status updated to {new_status}'}), 200
+
+
+@order_bp.route('/cancel/<string:order_code>', methods=['PUT'])
+def cancel_order_by_user(order_code):
+    try:
+        order = Order.query.filter_by(order_code=order_code).first()
+
+        if not order:
+            return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+        try:
+            verify_jwt_in_request(optional=True)
+            current_user_id = get_current_user_id()
+        except:
+            current_user_id = None
+
+        if current_user_id and order.user_id:
+            if str(order.user_id) != str(current_user_id):
+                return jsonify({'error': 'Bạn không có quyền hủy đơn hàng này'}), 403
+
+        if order.status != 'PENDING':
+            return jsonify({
+                               'error': 'Chỉ có thể hủy đơn hàng khi đang chờ xử lý (PENDING)'}), 400
+
+        order.status = 'CANCELLED'
+
+        for item in order.items:
+            if item.flavor_id:
+                flavor = ProductFlavor.query.get(item.flavor_id)
+                if flavor:
+                    flavor.stock += item.quantity
+                    if flavor.product:
+                        flavor.product.sold_count = max(flavor.product.sold_count - item.quantity, 0)
+            else:
+                product = Product.query.get(item.product_id)
+                if product:
+                    product.stock += item.quantity
+                    product.sold_count = max(product.sold_count - item.quantity, 0)
+
+        db.session.commit()
+
+        return jsonify({
+            'message': 'Hủy đơn hàng thành công!',
+            'order_code': order.order_code,
+            'status': 'CANCELLED'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error cancelling order: {e}")
+        return jsonify({'error': 'Lỗi hệ thống khi hủy đơn hàng'}), 500

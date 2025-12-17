@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import orderApi from "../../api/orderApi";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 import LoadingSpinner from "../../loading-spinner/LoadingSpinner";
 import "../../styles/order/OrderLookup.css";
 import { getStatusText, getStatusClass, getPaymentText } from "../../utils/orderHelper";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import ConfirmModal from "../../components/modals/ConfirmModal";
 
 const OrderLookup = () => {
     const [code, setCode] = useState("");
@@ -12,6 +15,34 @@ const OrderLookup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const apiUrl = process.env.REACT_APP_API_URL;
+    const location = useLocation();
+    const [showCancelModal, setShowCancelModal] = useState(false);
+
+    const performLookup = async (searchCode) => {
+        if (!searchCode) return;
+
+        setLoading(true);
+        setError("");
+        setOrderData(null);
+
+        try {
+            const res = await orderApi.lookupOrder(searchCode.trim());
+            setOrderData(res.order);
+        } catch (err) {
+            console.error(err);
+            setError("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (location.state && location.state.autoSearchCode) {
+            const autoCode = location.state.autoSearchCode;
+            setCode(autoCode);
+            performLookup(autoCode);
+        }
+    }, [location.state]);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -19,19 +50,28 @@ const OrderLookup = () => {
             setError("Vui lòng nhập mã đơn hàng");
             return;
         }
+        performLookup(code);
+    };
 
-        setLoading(true);
-        setError("");
-        setOrderData(null);
+    const handleConfirmCancelOrder = async () => {
+        if (!orderData) return;
 
         try {
-            const res = await orderApi.lookupOrder(code.trim());
-            setOrderData(res.order);
+            setLoading(true);
+            await orderApi.cancel(orderData.order_code);
+
+            toast.success("Hủy đơn hàng thành công!");
+
+            // Gọi lại API tìm kiếm để cập nhật lại trạng thái mới nhất (CANCELLED)
+            await performLookup(orderData.order_code);
+
         } catch (err) {
             console.error(err);
-            setError("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã.");
+            const message = err.response?.data?.error || "Có lỗi xảy ra khi hủy đơn hàng";
+            toast.error(message);
         } finally {
             setLoading(false);
+            setShowCancelModal(false);
         }
     };
 
@@ -110,12 +150,38 @@ const OrderLookup = () => {
                             ))}
                         </div>
 
+                        <div>
+                            {orderData.status === 'PENDING' && (
+                                <button
+                                    className={"cancel-button"}
+                                    onClick={() => setShowCancelModal(true)}
+                                    onMouseOver={(e) => e.target.style.backgroundColor = '#b71c1c'}
+                                    onMouseOut={(e) => e.target.style.backgroundColor = '#d32f2f'}
+                                >
+                                    Hủy đơn hàng
+                                </button>
+                            )}
+                        </div>
+
                         <div style={{textAlign: 'right', fontSize: 18, fontWeight: 'bold', marginTop: 10}}>
                             Tổng tiền: <span style={{color: '#d32f2f'}}>{formatVND(orderData.total_amount)}</span>
                         </div>
+
+                        {showCancelModal && (
+                            <ConfirmModal
+                                title="Xác nhận hủy đơn hàng"
+                                message="Bạn có chắc chắn muốn hủy đơn hàng chứ?"
+                                onConfirm={handleConfirmCancelOrder}
+                                onCancel={() => setShowCancelModal(false)}
+                            />
+                        )}
+
                     </div>
                 )}
             </div>
+
+
+
             <Footer/>
         </>
     );

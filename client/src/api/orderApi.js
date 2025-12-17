@@ -13,12 +13,20 @@ const orderApi = {
         return axiosClient.get('/orders/my-orders');
     },
 
+    getOrderDetail: (id) => {
+        return axiosClient.get(`/orders/get-order-detail/${id}`);
+    },
+
     getAllOrders: () => {
         return axiosClient.get('/orders/get-all-orders');
     },
 
     updateStatus: (orderId, status) => {
         return axiosClient.put(`/orders/update-status/${orderId}`, {status});
+    },
+
+    cancel: (orderCode) => {
+        return axiosClient.put(`/orders/cancel/${orderCode}`);
     },
 }
 

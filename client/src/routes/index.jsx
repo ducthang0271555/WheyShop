@@ -5,7 +5,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import VerifyOTP from "../pages/auth/VerifyOTP";
 import ResetPassword from "../pages/auth/ResetPassword";
 import HomePage from "../pages/home/HomePage";
-import Dashboard from "../pages/admin/Dashboard";
+import Dashboard from "../pages/admin/dashboard/Dashboard";
 import PrivateRoute from "./PrivateRoute";
 import ManageUser from "../pages/admin/ManageUser";
 import ManageCategory from "../pages/admin/ManageCategory";

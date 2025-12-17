@@ -10,7 +10,7 @@
     color: #333;
 }
 
-/* Stats Cards */
+/* --- Stats Cards --- */
 .dashboard-container .stats-cards {
     display: flex;
     gap: 20px;
@@ -39,7 +39,15 @@
     color: #333;
 }
 
-/* Timeline Group */
+/* Revenue Card specific styles */
+.dashboard-container .stat-card.revenue {
+    border-color: #2e7d32;
+}
+.dashboard-container .stat-card.revenue p {
+    color: #2e7d32;
+}
+
+/* --- Timeline Group --- */
 .dashboard-container .timeline-group {
     margin-bottom: 30px;
 }
@@ -129,6 +137,18 @@
     font-style: italic;
 }
 
+.dashboard-container .col-total-amount {
+    font-weight: bold;
+    color: #d32f2f;
+}
+
+.dashboard-container .status-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Payment Badges */
 .dashboard-container .payment-badge {
     padding: 4px 8px;
     border-radius: 4px;
@@ -162,6 +182,7 @@
     text-transform: uppercase;
 }
 
+/* Bell Animation */
 @keyframes ring {
     0% { transform: rotate(0); }
     10% { transform: rotate(30deg); }
@@ -183,6 +204,7 @@
     animation: ring 2s infinite ease-in-out;
 }
 
+/* --- Modal Overlay & Content --- */
 .order-modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -232,12 +254,136 @@
     padding-bottom: 5px;
 }
 
+/* Customer Info Grid in Modal */
+.customer-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.customer-info-grid .full-width {
+    grid-column: 1 / 3;
+}
+
+.customer-info-grid .text-muted {
+    color: #666;
+}
+
+/* Product List in Modal */
+.detail-items-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.item-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 10px;
+}
+
+.item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.item-meta {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+}
+
+.item-flavor {
+    margin-right: 10px;
+}
+
+.item-gift {
+    color: #d32f2f;
+}
+
+.item-price-block {
+    text-align: right;
+}
+
+.item-price {
+    font-size: 14px;
+}
+
+.item-qty {
+    font-size: 13px;
+    color: #888;
+}
+
+/* Modal Footer Summary */
+.modal-footer-summary {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payment-status-text {
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.payment-status-text.paid {
+    color: green;
+}
+
+.payment-status-text.unpaid {
+    color: orange;
+}
+
+.total-block {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.total-block span {
+    color: #d32f2f;
+}
+
+/* Actions */
 .status-actions {
     display: flex;
     gap: 10px;
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.status-message {
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+}
+
+.status-message.success {
+    color: green;
+}
+
+.status-message.error {
+    color: red;
 }
 
 .action-btn {
